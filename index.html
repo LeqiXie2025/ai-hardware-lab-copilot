@@ -1,0 +1,2367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI+硬件实训平台</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --blue:#4f6ef7; --blue2:#6c8cff; --blue-light:#eef1ff;
+  --green:#34c759; --green-light:#e9f8ee;
+  --orange:#ff9500; --orange-light:#fff5e8;
+  --red:#ff3b30; --red-light:#ffebea;
+  --bg:#f2f3f7; --card:#fff; --text:#1d1d1f; --text2:#86868b; --border:#e8e8ed;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.04); --shadow-md:0 4px 20px rgba(0,0,0,.06);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.1); --shadow-xl:0 24px 80px rgba(0,0,0,.12);
+  --radius-sm:10px; --radius:16px; --radius-lg:20px; --radius-xl:24px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',-apple-system,"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ── Entry Page ── */
+.entry-page{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(160deg, #05081a 0%, #0a1035 25%, #0e1945 50%, #0c2340 75%, #081a30 100%);
+  position:relative;overflow:hidden;
+}
+.entry-page::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 700px 450px at 20% 25%, rgba(79,110,247,.12) 0%, transparent 70%),
+    radial-gradient(ellipse 550px 550px at 78% 55%, rgba(52,199,89,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 450px 350px at 50% 75%, rgba(255,149,0,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 300px 200px at 85% 15%, rgba(79,110,247,.05) 0%, transparent 60%);
+}
+.entry-page .grid-bg{
+  position:absolute;inset:0;opacity:.025;
+  background-image:linear-gradient(rgba(255,255,255,.25) 1px, transparent 1px),
+                   linear-gradient(90deg, rgba(255,255,255,.25) 1px, transparent 1px);
+  background-size:50px 50px;
+}
+
+/* Floating particles */
+.entry-page .particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.entry-page .particle{
+  position:absolute;border-radius:50%;animation:floatUp linear infinite;
+  opacity:0;
+}
+@keyframes floatUp{
+  0%{transform:translateY(0) scale(1);opacity:0;}
+  10%{opacity:.6;}
+  90%{opacity:.2;}
+  100%{transform:translateY(-110vh) scale(.3);opacity:0;}
+}
+@keyframes pulseGlow{
+  0%,100%{box-shadow:0 0 20px rgba(79,110,247,.15),0 0 60px rgba(79,110,247,.05);}
+  50%{box-shadow:0 0 35px rgba(79,110,247,.25),0 0 90px rgba(79,110,247,.1);}
+}
+
+.entry-page *{position:relative;z-index:1;}
+
+/* ── 3D Chip Illustration ── */
+.chip-illustration{
+  width:140px;height:140px;margin-bottom:36px;perspective:600px;
+}
+.chip-3d{
+  width:100%;height:100%;position:relative;transform-style:preserve-3d;
+  animation:chipFloat 6s ease-in-out infinite, chipRotate 16s linear infinite;
+}
+@keyframes chipFloat{
+  0%,100%{transform:rotateX(25deg) rotateY(0deg) translateY(0);}
+  25%{transform:rotateX(25deg) rotateY(0deg) translateY(-12px);}
+  75%{transform:rotateX(25deg) rotateY(0deg) translateY(8px);}
+}
+@keyframes chipRotate{
+  0%{transform:rotateX(25deg) rotateY(0deg);}
+  100%{transform:rotateX(25deg) rotateY(360deg);}
+}
+.chip-base{
+  width:120px;height:120px;position:absolute;top:10px;left:10px;
+  background:linear-gradient(145deg,#1a1a3e,#252560);border-radius:16px;
+  border:3px solid rgba(79,110,247,.4);
+  box-shadow:0 0 30px rgba(79,110,247,.2),inset 0 0 30px rgba(79,110,247,.08);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;
+}
+.chip-base::after{
+  content:'ESP32';font-size:13px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:2px;
+}
+.chip-glow{
+  position:absolute;top:10px;left:10px;width:120px;height:120px;border-radius:16px;
+  background:radial-gradient(circle at 40% 40%, rgba(79,110,247,.25), transparent 70%);
+  animation:pulseGlow 3s ease infinite;
+}
+.chip-pins-top,.chip-pins-bot{
+  position:absolute;left:16px;right:16px;height:8px;display:flex;gap:4px;justify-content:center;
+}
+.chip-pins-top{top:2px;}
+.chip-pins-bot{bottom:2px;}
+.chip-pin{
+  width:4px;height:8px;background:rgba(255,255,255,.25);border-radius:0 0 2px 2px;
+}
+.chip-pins-bot .chip-pin{border-radius:2px 2px 0 0;}
+
+.entry-page .logo-area{text-align:center;margin-bottom:8px;}
+.entry-page .logo-area .badge{
+  display:inline-block;padding:6px 18px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);
+  color:rgba(255,255,255,.4);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:24px;
+  backdrop-filter:blur(10px);
+}
+.entry-page .logo-area .platform-version{
+  display:block;margin-top:4px;font-size:10px;color:rgba(255,255,255,.15);letter-spacing:2px;
+}
+.entry-user-tag{
+  display:inline-block;padding:4px 14px;border-radius:16px;font-size:12px;font-weight:500;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);
+  border:1px solid rgba(255,255,255,.06);margin-top:8px;
+}
+.entry-logout{
+  display:inline-block;margin-left:8px;font-size:11px;color:rgba(255,255,255,.25);
+  transition:.2s;
+}
+.entry-logout:hover{color:rgba(255,255,255,.5);}
+.entry-page h1{
+  color:#fff;font-size:52px;font-weight:800;letter-spacing:-1.5px;margin-bottom:14px;line-height:1.1;
+  background:linear-gradient(135deg, #ffffff 0%, #a8b8ff 40%, #c8d8ff 70%, #ffffff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-size:200% auto;animation:shimmer 4s ease infinite;
+}
+@keyframes shimmer{0%{background-position:0% center}50%{background-position:200% center}100%{background-position:0% center}}
+.entry-page .subtitle{
+  color:rgba(255,255,255,.35);font-size:16px;margin-bottom:12px;font-weight:400;
+}
+.entry-page .subtitle b{color:rgba(255,255,255,.55);font-weight:600;}
+.entry-page .sub-description{
+  color:rgba(255,255,255,.2);font-size:13px;margin-bottom:54px;max-width:500px;
+  line-height:1.7;
+}
+
+.entry-cards{display:flex;gap:28px;margin-bottom:60px;}
+.entry-card{
+  background:rgba(255,255,255,.03);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.06);border-radius:var(--radius-xl);
+  padding:44px 40px;width:270px;text-align:center;cursor:pointer;transition:all .4s cubic-bezier(.4,0,.2,1);
+  position:relative;overflow:hidden;
+}
+.entry-card::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.03),transparent);
+  transition:left .8s;
+}
+.entry-card:hover::before{left:100%;}
+.entry-card::after{
+  content:'';position:absolute;inset:0;border-radius:var(--radius-xl);
+  opacity:0;transition:opacity .4s;
+}
+.entry-card.novice::after{background:radial-gradient(ellipse at 50% -10%, rgba(79,110,247,.2), transparent 70%);}
+.entry-card.teacher::after{background:radial-gradient(ellipse at 50% -10%, rgba(255,149,0,.15), transparent 70%);}
+.entry-card:hover{transform:translateY(-10px);box-shadow:0 40px 100px rgba(0,0,0,.4);border-color:rgba(255,255,255,.15);}
+.entry-card:hover::after{opacity:1;}
+.entry-card:active{transform:translateY(-5px);}
+.entry-card.novice:hover{border-color:rgba(79,110,247,.35);}
+.entry-card.teacher:hover{border-color:rgba(255,149,0,.25);}
+
+.entry-card .card-icon{
+  width:68px;height:68px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+  font-size:34px;margin:0 auto 24px;transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+.entry-card:hover .card-icon{transform:scale(1.1) translateY(-4px);}
+.entry-card.novice .card-icon{background:rgba(79,110,247,.18);box-shadow:0 8px 24px rgba(79,110,247,.08);}
+.entry-card.teacher .card-icon{background:rgba(255,149,0,.12);box-shadow:0 8px 24px rgba(255,149,0,.06);}
+
+.entry-card h3{color:#fff;font-size:20px;font-weight:700;margin-bottom:10px;}
+.entry-card .desc{color:rgba(255,255,255,.3);font-size:13px;line-height:1.7;}
+.entry-card .tag-row{margin-top:20px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.entry-card .mini-tag{
+  padding:5px 12px;border-radius:10px;font-size:11px;
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.3);
+  transition:all .3s;
+}
+.entry-card.novice:hover .mini-tag{background:rgba(79,110,247,.1);color:rgba(79,110,247,.7);}
+.entry-card.teacher:hover .mini-tag{background:rgba(255,149,0,.08);color:rgba(255,149,0,.7);}
+
+/* Phase Overview Row */
+.phase-overview{
+  display:flex;gap:10px;align-items:center;margin-bottom:64px;
+}
+.phase-dot{
+  width:8px;height:8px;border-radius:4px;transition:all .3s;
+}
+.phase-dot:nth-child(1){background:rgba(79,110,247,.5);width:28px;}
+.phase-dot:nth-child(3){background:rgba(52,199,89,.5);}
+.phase-dot:nth-child(5){background:rgba(255,149,0,.4);}
+.phase-dot:nth-child(7){background:rgba(255,107,107,.4);}
+.phase-dot:nth-child(9){background:rgba(165,94,234,.4);}
+.phase-connector{width:20px;height:1px;background:rgba(255,255,255,.08);}
+.phase-label{
+  font-size:10px;color:rgba(255,255,255,.2);letter-spacing:1px;margin-left:6px;
+}
+
+/* Scroll Hint */
+.scroll-hint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;animation:scrollBounce 2s ease infinite;
+}
+@keyframes scrollBounce{0%,100%{transform:translateX(-50%) translateY(0);opacity:.5}50%{transform:translateX(-50%) translateY(8px);opacity:1}}
+.scroll-hint span{font-size:10px;color:rgba(255,255,255,.15);letter-spacing:2px;}
+.scroll-hint .scroll-arrow{font-size:14px;color:rgba(255,255,255,.2);}
+
+/* ── Login Page ── */
+.login-page{
+  display:flex;min-height:100vh;align-items:center;justify-content:center;
+  background:linear-gradient(160deg, #f0f2f8 0%, #e8ecf4 30%, #f5f6fa 60%, #eef1f7 100%);
+  position:relative;overflow:hidden;
+}
+.login-page .login-bg-grid{
+  position:absolute;inset:0;opacity:.35;
+  background-image:
+    linear-gradient(rgba(79,110,247,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,110,247,.06) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+.login-page .login-bg-orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:.25;
+}
+.login-page .login-bg-orb.o1{width:400px;height:400px;background:var(--blue);top:-100px;left:-100px;animation:orbFloat1 12s ease infinite;}
+.login-page .login-bg-orb.o2{width:300px;height:300px;background:var(--orange);bottom:-80px;right:-80px;animation:orbFloat2 14s ease infinite;}
+.login-page .login-bg-orb.o3{width:200px;height:200px;background:var(--green);top:40%;left:55%;animation:orbFloat3 10s ease infinite;}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-30px)}}
+@keyframes orbFloat3{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-50px)}}
+
+.login-card{
+  position:relative;z-index:1;width:440px;max-width:94vw;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+  border:1px solid rgba(255,255,255,.8);border-radius:24px;
+  padding:48px 44px;box-shadow:0 24px 80px rgba(0,0,20,.08),0 8px 24px rgba(0,0,20,.04);
+  animation:loginSlideUp .6s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes loginSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+.login-card .lc-header{text-align:center;margin-bottom:36px;}
+.login-card .lc-header .lc-chip{
+  display:inline-block;padding:5px 16px;border-radius:14px;font-size:11px;font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+  background:var(--blue-light);color:var(--blue);
+}
+.login-card .lc-header h2{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;color:#111;}
+.login-card .lc-header .lc-sub{font-size:13px;color:var(--text2);}
+
+/* Role Tabs */
+.login-card .lc-role-tabs{display:flex;gap:6px;margin-bottom:28px;background:#f0f2f7;border-radius:14px;padding:4px;}
+.login-card .lc-role-tab{
+  flex:1;padding:11px 0;text-align:center;border-radius:11px;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .25s;color:var(--text2);border:none;background:transparent;
+}
+.login-card .lc-role-tab.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.login-card .lc-role-tab.student.active{color:var(--blue);}
+.login-card .lc-role-tab.teacher.active{color:var(--orange);}
+.login-card .lc-role-tab .lc-role-emoji{font-size:18px;display:block;margin-bottom:2px;}
+
+/* Form */
+.login-card .lc-field{margin-bottom:20px;}
+.login-card .lc-field label{
+  display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;
+  text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;
+}
+.login-card .lc-field .lc-input-wrap{
+  position:relative;display:flex;align-items:center;
+}
+.login-card .lc-field input{
+  width:100%;padding:14px 16px 14px 44px;border:1.5px solid #e2e5ee;
+  border-radius:14px;font-size:15px;font-family:inherit;outline:none;transition:all .25s;
+  background:rgba(255,255,255,.7);color:#111;
+}
+.login-card .lc-field input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(79,110,247,.06);background:#fff;}
+.login-card .lc-field .lc-input-icon{
+  position:absolute;left:16px;font-size:16px;pointer-events:none;opacity:.5;
+}
+.login-card .lc-field input.teacher-field:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,149,0,.06);}
+
+/* Forgot / hint */
+.login-card .lc-hint{font-size:12px;color:var(--text2);text-align:right;margin-top:-12px;margin-bottom:16px;}
+.login-card .lc-error{
+  font-size:12px;color:var(--red);text-align:center;margin-bottom:12px;min-height:20px;
+  transition:all .25s;
+}
+
+.login-card .lc-submit{
+  width:100%;padding:15px;border-radius:14px;border:none;font-size:16px;font-weight:700;
+  cursor:pointer;transition:all .25s;margin-bottom:16px;color:#fff;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  box-shadow:0 6px 24px rgba(79,110,247,.25);
+}
+.login-card .lc-submit:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(79,110,247,.35);}
+.login-card .lc-submit:active{transform:translateY(0);}
+.login-card .lc-submit.teacher-submit{
+  background:linear-gradient(135deg,var(--orange),#ffb347);
+  box-shadow:0 6px 24px rgba(255,149,0,.25);
+}
+.login-card .lc-submit.teacher-submit:hover{box-shadow:0 8px 30px rgba(255,149,0,.35);}
+
+.login-card .lc-footer{text-align:center;font-size:12px;color:var(--text2);line-height:1.6;}
+.login-card .lc-footer span{color:var(--blue);cursor:pointer;font-weight:500;}
+.login-card .lc-footer span:hover{text-decoration:underline;}
+
+/* Decorative tech lines on login card */
+.login-card .lc-decor{position:absolute;pointer-events:none;opacity:.04;}
+.login-card .lc-decor.tl{top:-20px;left:-20px;width:80px;height:80px;border-top:2px solid var(--blue);border-left:2px solid var(--blue);border-radius:20px 0 0 0;}
+.login-card .lc-decor.br{bottom:-20px;right:-20px;width:80px;height:80px;border-bottom:2px solid var(--blue);border-right:2px solid var(--blue);border-radius:0 0 20px 0;}
+
+
+
+/* ── Top Nav ── */
+.app-nav{
+  display:flex;align-items:center;gap:14px;padding:14px 32px;background:var(--card);
+  border-bottom:1px solid var(--border);font-size:13px;position:sticky;top:0;z-index:100;
+  box-shadow:var(--shadow-sm);
+}
+.app-nav .nav-logo{font-weight:700;font-size:15px;color:var(--blue);cursor:pointer;}
+.app-nav .nav-sep{width:1px;height:16px;background:var(--border);}
+.app-nav .nav-title{font-weight:500;}
+.app-nav .nav-right{margin-left:auto;display:flex;gap:12px;align-items:center;}
+.app-nav .nav-role{
+  padding:5px 14px;border-radius:14px;font-size:12px;font-weight:500;
+}
+.app-nav .nav-role.student{background:var(--blue-light);color:var(--blue);}
+.app-nav .nav-role.teacher{background:var(--orange-light);color:var(--orange);}
+.app-nav .nav-link{color:var(--blue);cursor:pointer;font-size:12px;font-weight:500;}
+.app-nav .nav-link:hover{opacity:.7;}
+
+/* ── Calendar Page ── */
+.calendar-page{display:none;min-height:calc(100vh - 49px);}
+.cal-phase-tabs{display:flex;gap:4px;max-width:1300px;margin:0 auto;padding:20px 40px 0;overflow-x:auto;}
+.cal-phase-tab{
+  padding:8px 18px;border-radius:12px 12px 0 0;border:1px solid transparent;border-bottom:none;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;
+  background:transparent;color:var(--text2);
+}
+.cal-phase-tab:hover{color:var(--text);background:rgba(255,255,255,.6);}
+.cal-phase-tab.active{background:var(--card);color:var(--blue);border-color:var(--border);box-shadow:0 -2px 8px rgba(0,0,0,.03);}
+.cal-wrap{display:flex;max-width:1300px;margin:0 auto;padding:0 40px 36px;gap:36px;}
+.cal-main{flex:1;}
+.cal-side{width:290px;flex-shrink:0;}
+
+.cal-main .page-header{margin-bottom:28px;padding-top:8px;}
+.cal-main .page-header .phase-chip{
+  display:inline-block;padding:6px 16px;border-radius:16px;font-size:12px;font-weight:600;
+  background:var(--blue-light);color:var(--blue);margin-bottom:12px;
+}
+.cal-main .page-header h2{font-size:28px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;}
+.cal-main .page-header .sub{color:var(--text2);font-size:14px;}
+
+.day-group{margin-bottom:32px;}
+.day-group .day-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.day-group .day-head .day-num{
+  width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;
+  box-shadow:0 4px 12px rgba(79,110,247,.2);
+}
+.day-group .day-head .day-info{font-size:14px;}
+.day-group .day-head .day-info .date{font-weight:600;}
+.day-group .day-head .day-info .weekday{color:var(--text2);font-size:12px;}
+
+.session-card{
+  background:var(--card);border-radius:var(--radius);padding:22px 26px;margin-bottom:12px;
+  border:1px solid var(--border);cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);
+  display:flex;gap:20px;align-items:center;
+  box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
+}
+.session-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 3px 3px 0;
+  transition:all .3s;background:transparent;
+}
+.session-card.lecture::before{background:var(--blue);}
+.session-card.hands-on::before{background:var(--green);}
+.session-card.qa::before{background:var(--orange);}
+.session-card:hover{transform:translateX(8px);box-shadow:var(--shadow-lg);border-color:#d0d0dd;}
+.session-card:hover .s-arrow{color:var(--blue);transform:translateX(4px);}
+.session-card .s-time{width:95px;flex-shrink:0;text-align:right;}
+.session-card .s-time .range{font-size:14px;font-weight:700;}
+.session-card .s-time .dur{font-size:11px;color:var(--text2);margin-top:4px;}
+.session-card .s-type{
+  width:72px;flex-shrink:0;text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;
+  padding:4px 0;border-radius:8px;letter-spacing:.5px;
+}
+.session-card .s-type.lecture{background:var(--blue-light);color:var(--blue);}
+.session-card .s-type.hands-on{background:var(--green-light);color:var(--green);}
+.session-card .s-type.qa{background:var(--orange-light);color:var(--orange);}
+.session-card .s-content{flex:1;min-width:0;}
+.session-card .s-content h4{font-size:15px;font-weight:600;margin-bottom:5px;}
+.session-card .s-content .topic{font-size:13px;color:#555;margin-bottom:8px;line-height:1.5;}
+.session-card .s-meta{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--text2);}
+.session-card .s-meta .meta-tag{display:inline-flex;align-items:center;gap:4px;background:#f5f6fa;padding:3px 10px;border-radius:6px;}.session-card .s-meta .demo-tag{background:rgba(255,149,0,.12);color:var(--orange);cursor:pointer;font-weight:600;}
+.session-card .s-arrow{font-size:22px;color:var(--border);transition:all .3s;flex-shrink:0;}
+.session-card.current{border-color:var(--blue);box-shadow:0 0 0 4px rgba(79,110,247,.06);}
+.session-card.current::after{content:'进行中';position:absolute;top:-1px;right:24px;background:var(--blue);color:#fff;padding:3px 12px;border-radius:0 0 8px 8px;font-size:10px;font-weight:600;}
+
+/* Sidebar */
+.side-block{background:var(--card);border-radius:var(--radius);padding:18px 22px;margin-bottom:14px;box-shadow:var(--shadow-sm);border:1px solid var(--border);}
+.side-block.side-stats{padding:14px 18px;}
+.side-block h5{font-size:12px;font-weight:600;margin-bottom:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
+.side-block .prog-bar{height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-bottom:6px;}
+.side-block .prog-bar .fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:4px;transition:width .6s ease;}
+.side-block .prog-text{font-size:12px;color:var(--text2);}
+.side-block .chk-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;cursor:pointer;transition:.15s;user-select:none;}
+.side-block .chk-item:hover{color:var(--blue);}
+.side-block .chk-item .chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:.2s;pointer-events:none;}
+.side-block .chk-item.done .chk{background:var(--green);border-color:var(--green);color:#fff;}
+.side-block .chk-item.done .chk::after{content:'✓';font-weight:700;}
+.side-block .chk-item.done .label{text-decoration:line-through;color:var(--text2);}
+.side-block .chk-item .label{pointer-events:none;}
+
+.side-stat-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f7;font-size:12px;}
+.side-stat-row:last-child{border-bottom:none;}
+.side-stat-row .ssr-val{font-weight:700;color:var(--blue);}
+
+.mini-cal{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+.mini-cal .mc-head{background:#fafbfc;padding:10px 14px;font-size:13px;font-weight:600;text-align:center;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;}
+.mini-cal .mc-grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;padding:6px 8px 10px;}
+.mini-cal .mc-grid .dow{font-size:10px;color:var(--text2);padding:4px 0;}
+.mini-cal .mc-grid .day{font-size:12px;padding:6px 0;border-radius:6px;cursor:default;transition:.15s;}
+.mini-cal .mc-grid .day.hl{background:var(--blue);color:#fff;font-weight:600;}
+.mini-cal .mc-grid .day.ev{position:relative;}
+.mini-cal .mc-grid .day.ev::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:2px;background:var(--blue);}
+.mini-cal .mc-grid .day.ev.hl::after{background:#fff;}
+.mini-cal .mc-grid .day.today{border:1.5px solid var(--blue);font-weight:600;}
+
+/* ── Mode Selection ── */
+.mode-page{display:none;min-height:calc(100vh - 49px);}
+.mode-wrap{
+  max-width:700px;margin:0 auto;padding:80px 40px;text-align:center;
+}
+.mode-wrap .back-link{display:inline-block;color:var(--text2);cursor:pointer;font-size:13px;margin-bottom:32px;}
+.mode-wrap .back-link:hover{color:var(--text);}
+.mode-wrap .session-info{margin-bottom:40px;}
+.mode-wrap .session-info .chip{
+  display:inline-block;padding:5px 14px;border-radius:14px;font-size:12px;font-weight:500;margin-bottom:14px;
+}
+.mode-wrap .session-info .chip.morning{background:var(--blue-light);color:var(--blue);}
+.mode-wrap .session-info .chip.afternoon{background:var(--orange-light);color:var(--orange);}
+.mode-wrap .session-info .chip.orange{background:var(--orange-light);color:var(--orange);}
+.mode-wrap .session-info h2{font-size:26px;font-weight:700;margin-bottom:8px;}
+.mode-wrap .session-info .meta{color:var(--text2);font-size:14px;}
+
+.mode-btns{display:flex;gap:24px;justify-content:center;margin-top:8px;}
+.demo-block{
+  width:100%;max-width:560px;margin:0 auto 32px;
+  background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:var(--radius);
+  padding:44px;text-align:center;color:#fff;cursor:pointer;transition:all .2s;
+}
+.demo-block:hover{opacity:.92;transform:scale(1.01);}
+.mode-btn{
+  background:var(--card);border:2px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px 40px;width:240px;cursor:pointer;transition:all .25s;text-align:center;
+  box-shadow:var(--shadow-sm);
+}
+.mode-btn:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg);}
+.mode-btn .big-emoji{font-size:44px;display:block;margin-bottom:14px;}
+.mode-btn h3{font-size:18px;font-weight:700;margin-bottom:6px;}
+.mode-btn .hint{font-size:12px;color:var(--text2);}
+.mode-btn.guide:hover{border-color:var(--blue);background:var(--blue-light);}
+.mode-btn.solo:hover{border-color:var(--green);background:var(--green-light);}
+
+/* ── Content Page ── */
+.content-page{display:none;min-height:calc(100vh - 49px);}
+.content-layout{display:flex;height:calc(100vh - 49px);}
+.content-main{flex:1;overflow-y:auto;padding:36px 48px 100px;background:#fafbfc;}
+.content-main .back{display:inline-block;color:var(--blue);cursor:pointer;font-size:13px;font-weight:500;margin-bottom:20px;}
+.content-main .back:hover{opacity:.7;}
+.content-main .page-chip{display:inline-block;padding:5px 14px;border-radius:14px;font-size:12px;font-weight:500;margin-bottom:10px;}
+.content-main .page-chip.guide-chip{background:var(--blue-light);color:var(--blue);}
+.content-main .page-chip.solo-chip{background:var(--green-light);color:var(--green);}
+.content-main h2{font-size:24px;font-weight:700;margin-bottom:6px;}
+.content-main .info-bar{display:flex;gap:20px;margin-bottom:28px;font-size:13px;color:var(--text2);flex-wrap:wrap;}
+
+.t-step{
+  background:var(--card);border-radius:var(--radius);padding:24px 28px;margin-bottom:14px;
+  border:1px solid var(--border);box-shadow:var(--shadow-sm);
+}
+.t-step.active-step{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,110,247,.06);}
+.t-step .step-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.t-step .step-num{width:30px;height:30px;border-radius:15px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;}
+.t-step .step-hd h4{font-size:16px;font-weight:600;}
+.t-step .step-bd{font-size:14px;color:#555;line-height:1.7;}
+.t-step .step-bd .l{margin-bottom:8px;display:flex;gap:8px;}
+.t-step .step-bd .l-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;flex-shrink:0;margin-top:2px;min-width:56px;text-align:center;}
+.t-step .step-bd .l-tag.do{background:var(--blue-light);color:var(--blue);}
+.t-step .step-bd .l-tag.why{background:var(--orange-light);color:var(--orange);}
+.t-step .step-bd .l-tag.ok{background:var(--green-light);color:var(--green);}
+.t-step .step-bd .l-tag.warn{background:var(--red-light);color:var(--red);}
+.t-step .code-blk{background:#1a1a2e;color:#cdd6f4;padding:16px 20px;border-radius:var(--radius-sm);font-family:'SF Mono','Fira Code','Cascadia Code',monospace;font-size:13px;line-height:1.65;margin:10px 0;overflow-x:auto;white-space:pre;}
+.t-step .ai-tip{background:var(--blue-light);border:1px solid rgba(79,110,247,.1);border-radius:var(--radius-sm);padding:12px 16px;margin-top:12px;font-size:13px;display:flex;gap:10px;align-items:flex-start;}
+.guide-progress{display:flex;align-items:center;gap:8px;margin-bottom:20px;padding:12px 18px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);}
+.guide-progress .gp-bar{flex:1;height:6px;background:#eee;border-radius:3px;overflow:hidden;}
+.guide-progress .gp-bar .gp-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:3px;transition:width .4s ease;}
+.guide-progress .gp-text{font-size:12px;font-weight:600;color:var(--blue);white-space:nowrap;}
+.t-step.completed .step-num{background:var(--green)!important;position:relative;}
+.t-step.completed .step-num::after{content:'✓';}
+.t-step .step-hd{cursor:pointer;transition:.15s;}
+.t-step .step-hd:hover{opacity:.8;}
+.t-step .step-check{width:24px;height:24px;border-radius:12px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;cursor:pointer;transition:.2s;margin-left:auto;}
+.t-step .step-check:hover{border-color:var(--green);}
+.t-step.completed .step-check{background:var(--green);border-color:var(--green);color:#fff;}
+.t-step.completed .step-check::after{content:'✓';}
+.t-step.completed .step-hd h4{text-decoration:line-through;color:var(--text2);}
+
+/* why-confirm block */
+.why-confirm{
+  background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid var(--orange);border-radius:var(--radius-sm);
+  padding:16px 20px;margin-top:14px;font-size:14px;line-height:1.8;
+}
+.why-confirm .wc-q{font-weight:700;color:#e67e00;margin-bottom:10px;}
+.why-confirm .wc-input{width:100%;border:1px solid #e0d5b0;border-radius:10px;padding:10px 14px;font-size:13px;font-family:inherit;resize:none;outline:none;margin-bottom:8px;transition:.2s;}
+.why-confirm .wc-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,149,0,.08);}
+.why-confirm .wc-submit{padding:8px 22px;border-radius:8px;border:none;background:var(--orange);color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;}
+.why-confirm .wc-submit:hover{background:#e08600;}
+
+.mat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+.mat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);}
+.mat-card:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 0 0 3px rgba(52,199,89,.06);}
+.mat-card .mat-ico{font-size:26px;margin-bottom:10px;}
+.mat-card h4{font-size:15px;font-weight:600;margin-bottom:4px;}
+.mat-card p{font-size:13px;color:var(--text2);}
+
+/* ── Teacher Page ── */
+.teacher-page{display:none;min-height:calc(100vh - 49px);}
+.teacher-wrap{max-width:1300px;margin:0 auto;padding:32px 40px;}
+.teacher-wrap h2{font-size:24px;font-weight:700;margin-bottom:4px;}
+.teacher-wrap .sub{color:var(--text2);font-size:13px;margin-bottom:24px;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:18px 22px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px;cursor:default;}
+.stat-card .st-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-card .st-icon.g{background:var(--green-light);}
+.stat-card .st-icon.y{background:var(--orange-light);}
+.stat-card .st-icon.r{background:var(--red-light);}
+.stat-card .st-icon.b{background:var(--blue-light);}
+.stat-card .st-num{font-size:32px;font-weight:800;letter-spacing:-1px;}
+.stat-card .st-lbl{font-size:13px;color:var(--text2);}
+.section-card{background:var(--card);border-radius:var(--radius);padding:18px 24px;margin-bottom:16px;box-shadow:var(--shadow-sm);}
+.section-card h5{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.tag-list{display:flex;gap:8px;flex-wrap:wrap;}
+.tag-list .tl{background:var(--blue-light);color:var(--blue);padding:5px 14px;border-radius:14px;font-size:12px;cursor:pointer;transition:all .15s;}
+.tag-list .tl:hover{background:#dae0ff;}
+.data-tbl{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);}
+.data-tbl table{width:100%;border-collapse:collapse;}
+.data-tbl th{background:#fafbfc;padding:12px 16px;text-align:left;font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+.data-tbl td{padding:13px 16px;font-size:13px;border-bottom:1px solid #f5f5f7;}
+.data-tbl tr:last-child td{border-bottom:none;}
+.data-tbl tr:hover td{background:#fafbfc;}
+.data-tbl tr.clickable{cursor:pointer;}
+.data-tbl tr.clickable:hover td{background:var(--blue-light);}
+.dot-s{display:inline-block;width:7px;height:7px;border-radius:4px;margin-right:6px;}
+.dot-s.g{background:var(--green);}.dot-s.y{background:var(--orange);}.dot-s.r{background:var(--red);}
+.inline-prog{height:4px;background:#eee;border-radius:2px;margin-bottom:4px;width:60px;overflow:hidden;}
+.inline-prog .ip-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .4s;}
+.phase-dist-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:10px 16px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;
+  box-shadow:var(--shadow-sm);cursor:pointer;transition:.2s;
+}
+.phase-dist-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--c,var(--blue));}
+.phase-dist-card .pdc-dot{width:10px;height:10px;border-radius:5px;flex-shrink:0;}
+.phase-dist-card .pdc-num{color:var(--text2);font-weight:400;font-size:12px;}
+
+/* student detail panel in teacher */
+.student-detail{display:none;background:var(--card);border-radius:var(--radius);padding:22px 26px;margin-bottom:18px;box-shadow:var(--shadow-md);border:1px solid var(--blue);animation:fadeUp .25s ease;}
+.student-detail h5{font-size:15px;font-weight:700;margin-bottom:6px;}
+.student-detail .sd-meta{font-size:12px;color:var(--text2);margin-bottom:14px;display:flex;gap:18px;}
+.student-detail .sd-log{background:#fafbfc;border-radius:var(--radius-sm);padding:14px 18px;font-size:12px;color:#555;line-height:1.8;max-height:200px;overflow-y:auto;font-family:monospace;}
+
+/* ── Course Editor (Teacher) ── */
+.ce-page{display:none;min-height:calc(100vh - 49px);}
+.ce-wrap{max-width:1100px;margin:0 auto;padding:32px 40px;}
+.ce-wrap h2{font-size:24px;font-weight:700;margin-bottom:4px;}
+.ce-wrap .ce-desc{color:var(--text2);font-size:13px;margin-bottom:28px;}
+.ce-tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;}
+.ce-tab{padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text2);transition:.2s;}
+.ce-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.ce-tab:hover:not(.active){border-color:var(--blue);color:var(--blue);}
+.ce-form{background:var(--card);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow-sm);}
+.ce-form h4{font-size:16px;font-weight:700;margin-bottom:20px;}
+.ce-day-block{background:#fafbfc;border-radius:12px;padding:20px 24px;margin-bottom:16px;border:1px solid #f0f0f3;}
+.ce-day-block .ce-day-hd{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.ce-day-block .ce-day-hd .ce-day-num{width:36px;height:36px;border-radius:10px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;}
+.ce-day-block .ce-day-hd input{padding:7px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;flex:1;}
+.ce-session{background:#fff;border:1px solid #eee;border-radius:10px;padding:14px 18px;margin-bottom:10px;}
+.ce-session .ce-sess-row{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.ce-session .ce-sess-row:last-child{margin-bottom:0;}
+.ce-session input, .ce-session select{padding:7px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:12px;font-family:inherit;min-width:0;}
+.ce-session input.w40{width:40%;}.ce-session input.w30{width:30%;}.ce-session input.w25{width:25%;}.ce-session input.w20{width:20%;}.ce-session input.w15{width:15%;}.ce-session input.w-full{width:100%;}
+.ce-session select{width:auto;}
+.ce-btn-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+.ce-preview{background:var(--card);border-radius:var(--radius);padding:24px 28px;margin-top:20px;box-shadow:var(--shadow-sm);}
+.ce-preview h4{font-size:14px;font-weight:600;margin-bottom:12px;}
+
+/* ── Emergency Room ── */
+.er-page{display:none;min-height:calc(100vh - 49px);}
+.er-wrap{max-width:680px;margin:0 auto;padding:48px 40px;}
+.er-wrap h2{font-size:24px;font-weight:700;margin-bottom:8px;}
+.er-wrap .er-desc{color:var(--text2);font-size:14px;margin-bottom:32px;}
+.er-grid{display:flex;flex-direction:column;gap:12px;}
+.er-card{
+  background:var(--card);border:2px solid var(--border);border-radius:var(--radius);
+  padding:20px 24px;cursor:pointer;transition:all .25s;display:flex;align-items:center;gap:18px;
+  box-shadow:var(--shadow-sm);
+}
+.er-card:hover{border-color:var(--blue);transform:translateX(8px);box-shadow:var(--shadow-md);}
+.er-card .er-icon{font-size:28px;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.er-card:nth-child(1) .er-icon{background:#ffe0e0;}
+.er-card:nth-child(2) .er-icon{background:#e0e8ff;}
+.er-card:nth-child(3) .er-icon{background:#ffe8d0;}
+.er-card:nth-child(4) .er-icon{background:#e0ffe0;}
+.er-card:nth-child(5) .er-icon{background:#f0e0ff;}
+.er-card:nth-child(6) .er-icon{background:#ffe0e0;animation:pulse-warn 1.5s ease infinite;}
+@keyframes pulse-warn{0%,100%{box-shadow:0 0 0 0 rgba(255,59,48,.3)}50%{box-shadow:0 0 0 12px rgba(255,59,48,0)}}
+.er-card .er-body{flex:1;min-width:0;}
+.er-card .er-body h4{font-size:16px;font-weight:600;margin-bottom:4px;}
+.er-card .er-body p{font-size:13px;color:var(--text2);}
+.er-card .er-arrow{font-size:18px;color:var(--border);transition:.2s;}
+.er-card:hover .er-arrow{color:var(--blue);}
+
+/* ── Floating Ball & Panel ── */
+.float-ball{
+  position:fixed;bottom:32px;right:32px;width:58px;height:58px;border-radius:18px;
+  cursor:pointer;z-index:9998;display:flex;align-items:center;justify-content:center;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 8px 32px rgba(79,110,247,.3);
+  background:linear-gradient(135deg, #4f6ef7 0%, #6c8cff 100%);
+}
+.float-ball:hover{transform:scale(1.06);box-shadow:0 12px 40px rgba(79,110,247,.4);}
+.float-ball svg{width:26px;height:26px;fill:#fff;}
+.float-ball .bubble-ring{position:absolute;inset:-6px;border-radius:24px;border:2px solid rgba(79,110,247,.25);animation:bubblePulse 2.2s ease-out infinite;}
+@keyframes bubblePulse{0%{transform:scale(1);opacity:1}100%{transform:scale(1.5);opacity:0}}
+.float-ball .badge-dot{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 6px;box-shadow:0 2px 8px rgba(255,59,48,.4);animation:badgePulse 2s ease infinite;}
+@keyframes badgePulse{0%,100%{box-shadow:0 2px 8px rgba(255,59,48,.4)}50%{box-shadow:0 2px 20px rgba(255,59,48,.7)}}
+
+.nav-alert-badge{
+  min-width:22px;height:22px;border-radius:11px;background:var(--red);color:#fff;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  padding:0 7px;cursor:pointer;animation:badgePulse 2s ease infinite;
+  box-shadow:0 2px 8px rgba(255,59,48,.4);transition:transform .15s;
+}
+.nav-alert-badge:hover{transform:scale(1.15);}
+
+.alert-item{
+  background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid #ffe0e0;
+}
+.alert-item .alert-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.alert-item .alert-lvl{display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.alert-item .alert-type{font-weight:600;font-size:14px;}
+.alert-item .alert-time{font-size:11px;color:var(--text2);margin-left:auto;}
+.alert-item .alert-body{font-size:13px;color:#555;line-height:1.6;margin-bottom:8px;}
+.alert-item .alert-foot{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text2);}
+
+.alert-badge{
+  display:inline-flex;min-width:22px;height:22px;border-radius:11px;background:var(--red);
+  color:#fff;font-size:11px;font-weight:700;align-items:center;justify-content:center;
+  padding:0 7px;vertical-align:middle;margin-left:6px;animation:badgePulse 2s ease infinite;
+}
+
+.float-panel{
+  position:fixed;bottom:106px;right:32px;width:440px;height:600px;
+  background:#fff;border-radius:20px;display:none;flex-direction:column;
+  z-index:9997;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.15),0 0 0 1px rgba(0,0,0,.04);
+  animation:panelIn .28s cubic-bezier(.4,0,.2,1);
+}
+@keyframes panelIn{from{opacity:0;transform:translateY(24px) scale(.94);}}
+.float-panel.open{display:flex;}
+
+.float-panel .ph{
+  background:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;
+  flex-shrink:0;border-bottom:1px solid #f0f0f3;
+}
+.float-panel .ph .agent-avatar{
+  width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#4f6ef7,#6c8cff);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.float-panel .ph .agent-info{flex:1;min-width:0;}
+.float-panel .ph .agent-info .agent-name{font-size:14px;font-weight:700;color:#1d1d1f;}
+.float-panel .ph .agent-info .agent-status{font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px;}
+.float-panel .ph .agent-info .agent-status::before{content:'';width:7px;height:7px;border-radius:4px;background:var(--green);}
+.float-panel .ph .ph-actions{display:flex;gap:6px;}
+.float-panel .ph .ph-btn{
+  width:32px;height:32px;border-radius:10px;border:none;background:#f4f5f9;
+  cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+.float-panel .ph .ph-btn:hover{background:#e8e8ed;}
+.float-panel .ph .ph-btn.close-btn:hover{background:var(--red-light);color:var(--red);}
+
+.float-panel .pm{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:14px;background:#fafbfd;}
+.float-panel .pm .time-divider{text-align:center;font-size:11px;color:var(--text2);margin:4px 0;}
+.float-panel .pm .mr{display:flex;gap:8px;animation:fadeUp .25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}}
+.float-panel .pm .mr.usr{flex-direction:row-reverse;}
+.float-panel .pm .mr .av{width:30px;height:30px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;align-self:flex-end;}
+.float-panel .pm .mr.agt .av{background:linear-gradient(135deg,#4f6ef7,#6c8cff);}
+.float-panel .pm .mr.usr .av{background:#e8e8ed;}
+.float-panel .pm .mr .msg-wrap{max-width:80%;display:flex;flex-direction:column;gap:3px;}
+.float-panel .pm .mb{padding:12px 16px;border-radius:16px;font-size:13px;line-height:1.6;word-break:break-word;}
+.float-panel .pm .mr.agt .mb{background:#fff;color:#1d1d1f;border-bottom-left-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.float-panel .pm .mr.usr .mb{background:linear-gradient(135deg,#4f6ef7,#5c7cf8);color:#fff;border-bottom-right-radius:6px;}
+.float-panel .pm .mr.auto .mb{background:#eef1ff;color:#3d5ce5;font-size:12px;border-radius:12px;box-shadow:none;}
+.float-panel .pm .msg-time{font-size:10px;color:var(--text2);padding:0 4px;}
+.float-panel .pm .mr.usr .msg-time{text-align:right;}
+
+/* decision-tree buttons in chat */
+.float-panel .pm .dt-options{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+.float-panel .pm .dt-opt{
+  padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;
+  font-size:12px;cursor:pointer;text-align:left;transition:all .15s;color:var(--text);
+}
+.float-panel .pm .dt-opt:hover{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+
+.float-panel .pm .img-msg{max-width:200px;border-radius:12px;overflow:hidden;cursor:pointer;border:1px solid rgba(0,0,0,.06);transition:all .15s;}
+.float-panel .pm .img-msg:hover{opacity:.92;transform:scale(1.02);}
+.float-panel .pm .img-msg img{width:100%;display:block;}
+
+.float-panel .quick-chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 16px;border-top:1px solid #f0f0f3;flex-shrink:0;}
+.float-panel .quick-chips .chip-btn{padding:6px 14px;border-radius:16px;border:1px solid var(--border);background:#fff;font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;color:#555;}
+.float-panel .quick-chips .chip-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+
+.float-panel .pi{display:flex;padding:10px 16px;border-top:1px solid #f0f0f3;gap:8px;flex-shrink:0;align-items:center;background:#fff;}
+.float-panel .pi .upload-btn{width:34px;height:34px;border-radius:10px;border:none;background:#f4f5f9;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;position:relative;overflow:hidden;}
+.float-panel .pi .upload-btn:hover{background:#eef1ff;color:var(--blue);}
+.float-panel .pi .upload-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.float-panel .pi textarea{flex:1;border:none;border-radius:12px;padding:10px 14px;font-size:13px;outline:none;background:#f4f5f9;resize:none;font-family:inherit;line-height:1.5;max-height:80px;transition:all .2s;}
+.float-panel .pi textarea:focus{background:#fff;box-shadow:0 0 0 2px rgba(79,110,247,.08);}
+.float-panel .pi .send-btn{width:34px;height:34px;border-radius:10px;border:none;background:var(--blue);color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.float-panel .pi .send-btn:hover{background:#3d5ce5;transform:scale(1.05);}
+.float-panel .pi .send-btn:disabled{opacity:.4;cursor:default;transform:none;}
+.float-panel .img-preview{display:flex;gap:8px;padding:0 16px 8px;flex-wrap:wrap;}
+.float-panel .img-preview .preview-item{position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.float-panel .img-preview .preview-item img{width:100%;height:100%;object-fit:cover;}
+.float-panel .img-preview .preview-item .remove{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:9px;background:rgba(0,0,0,.5);color:#fff;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;}
+
+.typing{display:flex;gap:4px;padding:6px 2px;}
+.typing span{width:6px;height:6px;border-radius:3px;background:#bbb;animation:tp 1.4s infinite ease-in-out;}
+.typing span:nth-child(2){animation-delay:.2s;}
+.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes tp{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-7px);opacity:1}}
+
+/* ── Modals ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;z-index:9999;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--radius-lg);padding:36px;width:460px;max-width:92vw;text-align:center;box-shadow:var(--shadow-xl);animation:panelIn .3s ease;max-height:85vh;overflow-y:auto;}
+.modal-box .m-icon{font-size:52px;margin-bottom:16px;}
+.modal-box h3{font-size:20px;font-weight:700;margin-bottom:12px;}
+.modal-box p{font-size:14px;color:#555;margin-bottom:24px;line-height:1.7;}
+.modal-box .m-btns{display:flex;gap:12px;justify-content:center;}
+
+.path-modal{width:560px!important;}
+.path-detail-body{text-align:left;font-size:14px;color:#555;line-height:1.8;}
+.path-detail-body .pd-section{margin-bottom:16px;}
+.path-detail-body .pd-section h6{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.path-detail-body .pd-section ul{margin:0;padding-left:18px;}
+.path-detail-body .pd-section li{margin-bottom:4px;font-size:13px;}
+.path-detail-body .pd-tag{display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:600;margin-right:6px;margin-bottom:4px;}
+.path-detail-body .pd-tag.hw{background:var(--red-light);color:var(--red);}
+.path-detail-body .pd-tag.sw{background:var(--blue-light);color:var(--blue);}
+.path-detail-body .pd-tag.ai{background:var(--orange-light);color:var(--orange);}
+
+.mat-card.mat-done{border-color:var(--green);position:relative;opacity:.65;}
+.mat-card.mat-done::after{content:'✓ 已领取';position:absolute;top:8px;right:10px;background:var(--green);color:#fff;padding:2px 10px;border-radius:6px;font-size:10px;font-weight:600;}
+.btn{padding:11px 28px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn.primary{background:var(--blue);color:#fff;}
+.btn.primary:hover{background:#3d5ce5;}
+.btn.danger{background:var(--red);color:#fff;}
+.btn.danger:hover{background:#d6302a;}
+.btn.ghost{background:#f4f4f6;color:#555;}
+.btn.ghost:hover{background:#e8e8ed;}
+.btn.sm{padding:8px 20px;font-size:13px;}
+
+/* safety checklist */
+.safety-checklist{text-align:left;margin-bottom:20px;}
+.safety-checklist .sc-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f3;font-size:13px;cursor:pointer;transition:.15s;user-select:none;}
+.safety-checklist .sc-item:last-child{border-bottom:none;}
+.safety-checklist .sc-item:hover{color:var(--blue);}
+.safety-checklist .sc-check{width:20px;height:20px;border-radius:5px;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px;transition:.15s;pointer-events:none;}
+.safety-checklist .sc-label{pointer-events:none;line-height:1.5;}
+.safety-checklist .sc-item.checked .sc-check{background:var(--green);border-color:var(--green);color:#fff;}
+.safety-checklist .sc-item.checked .sc-check::after{content:'✓';font-weight:700;}
+.safety-checklist .sc-item.checked .sc-label{text-decoration:line-through;color:var(--text2);}
+.sc-summary{font-size:12px;color:var(--text2);margin-top:8px;text-align:center;}
+
+/* ── Learning Path Map ── */
+.path-page{display:none;min-height:calc(100vh - 49px);}
+.path-wrap{max-width:1200px;margin:0 auto;padding:40px;}
+.path-wrap h2{font-size:24px;font-weight:700;margin-bottom:8px;}
+.path-wrap .path-desc{color:var(--text2);font-size:14px;margin-bottom:32px;}
+.path-timeline{display:flex;gap:0;position:relative;overflow-x:auto;padding-bottom:20px;}
+.path-timeline::before{content:'';position:absolute;top:34px;left:0;right:0;height:4px;background:linear-gradient(90deg, var(--blue), var(--green), var(--orange), #ff6b6b, #a55eea);border-radius:2px;}
+.path-phase {flex:1;min-width:200px;text-align:center;position:relative;z-index:1;cursor:pointer;transition:all .25s;padding:12px 8px;border-radius:16px;}
+.path-phase:hover{background:var(--card);box-shadow:var(--shadow-md);transform:translateY(-4px);}
+.path-phase .pp-dot{width:24px;height:24px;border-radius:12px;margin:18px auto 16px;border:3px solid #fff;box-shadow:0 0 0 3px var(--blue);position:relative;}
+.path-phase:nth-child(2) .pp-dot{box-shadow:0 0 0 3px var(--green);}
+.path-phase:nth-child(3) .pp-dot{box-shadow:0 0 0 3px var(--orange);}
+.path-phase:nth-child(4) .pp-dot{box-shadow:0 0 0 3px #ff6b6b;}
+.path-phase:nth-child(5) .pp-dot{box-shadow:0 0 0 3px #a55eea;}
+.path-phase .pp-dot.done{background:var(--green);}
+.path-phase .pp-dot.current{background:var(--blue);animation:dotPulse 2s ease infinite;}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 3px var(--blue)}50%{box-shadow:0 0 0 12px rgba(79,110,247,.15)}}
+.path-phase .pp-dot.upcoming{background:#ddd;}
+.path-phase .pp-title{font-weight:700;font-size:14px;margin-bottom:6px;}
+.path-phase .pp-days{font-size:12px;color:var(--text2);margin-bottom:8px;}
+.path-phase .pp-topics{font-size:11px;color:var(--text2);line-height:1.6;}
+
+/* ── FAQ / Knowledge Base ── */
+.faq-page{display:none;min-height:calc(100vh - 49px);}
+.faq-wrap{max-width:1000px;margin:0 auto;padding:32px 40px;}
+.faq-wrap h2{font-size:24px;font-weight:700;margin-bottom:8px;}
+.faq-wrap .faq-desc{color:var(--text2);font-size:14px;margin-bottom:24px;}
+.faq-search{display:flex;gap:10px;margin-bottom:24px;}
+.faq-search input{flex:1;border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-size:14px;outline:none;font-family:inherit;transition:.2s;}
+.faq-search input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,110,247,.06);}
+.faq-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.faq-tab{padding:7px 16px;border-radius:16px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;transition:.15s;}
+.faq-tab:hover{border-color:var(--blue);}
+.faq-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.faq-list{display:flex;flex-direction:column;gap:10px;}
+.faq-item{background:var(--card);border-radius:var(--radius);padding:18px 22px;border:1px solid var(--border);cursor:pointer;transition:.2s;box-shadow:var(--shadow-sm);}
+.faq-item:hover{border-color:var(--blue);transform:translateX(4px);}
+.faq-item .faq-q{font-weight:600;font-size:14px;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.faq-item .faq-q .faq-cat{padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;}
+.faq-item .faq-q .faq-cat.hw{background:#ffe0e0;color:#d63030;}
+.faq-item .faq-q .faq-cat.sw{background:#e0e8ff;color:var(--blue);}
+.faq-item .faq-q .faq-cat.env{background:#ffe8d0;color:var(--orange);}
+.faq-item .faq-q .faq-cat.ai{background:#f0e0ff;color:#8844cc;}
+.faq-item .faq-a{font-size:13px;color:#555;line-height:1.6;display:none;margin-top:8px;padding-top:12px;border-top:1px solid #f0f0f3;}
+.faq-item.open .faq-a{display:block;}
+
+/* ── Document Explainer ── */
+.doc-page{display:none;min-height:calc(100vh - 49px);}
+.doc-wrap{max-width:800px;margin:0 auto;padding:40px;}
+.doc-wrap h2{font-size:24px;font-weight:700;margin-bottom:8px;}
+.doc-wrap .doc-desc{color:var(--text2);font-size:14px;margin-bottom:28px;}
+.doc-upload{background:var(--card);border:2px dashed var(--border);border-radius:var(--radius);padding:48px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:20px;}
+.doc-upload:hover{border-color:var(--blue);background:var(--blue-light);}
+.doc-upload .du-icon{font-size:44px;margin-bottom:12px;}
+.doc-upload .du-text{font-size:15px;font-weight:600;margin-bottom:4px;}
+.doc-upload .du-hint{font-size:12px;color:var(--text2);}
+.doc-paste{background:var(--card);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow-sm);margin-bottom:20px;}
+.doc-paste h4{font-size:14px;font-weight:600;margin-bottom:10px;}
+.doc-paste textarea{width:100%;height:140px;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:13px;font-family:inherit;resize:vertical;outline:none;line-height:1.7;transition:.2s;}
+.doc-paste textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,110,247,.06);}
+.doc-result{background:var(--card);border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow-sm);display:none;}
+.doc-result h4{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--green);}
+.doc-result .dr-content{font-size:14px;color:#555;line-height:1.8;background:#fafbfc;padding:16px 20px;border-radius:var(--radius-sm);}
+
+/* ── Experiment Notes ── */
+.notes-page{display:none;min-height:calc(100vh - 49px);}
+.notes-wrap{max-width:900px;margin:0 auto;padding:32px 40px;}
+.notes-wrap h2{font-size:24px;font-weight:700;margin-bottom:8px;}
+.notes-wrap .notes-desc{color:var(--text2);font-size:14px;margin-bottom:24px;}
+.notes-grid{display:flex;flex-direction:column;gap:12px;}
+.note-card{background:var(--card);border-radius:var(--radius);padding:20px 24px;border:1px solid var(--border);box-shadow:var(--shadow-sm);cursor:pointer;transition:.2s;}
+.note-card:hover{border-color:var(--blue);transform:translateX(4px);}
+.note-card .n-date{font-size:12px;color:var(--text2);margin-bottom:6px;}
+.note-card .n-title{font-size:15px;font-weight:600;margin-bottom:8px;}
+.note-card .n-summary{font-size:13px;color:#555;display:flex;gap:20px;flex-wrap:wrap;}
+.note-card .n-summary span{display:flex;align-items:center;gap:4px;}
+.note-form{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);margin-bottom:18px;display:none;}
+.note-form .nf-field{margin-bottom:14px;}
+.note-form .nf-field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;}
+.note-form .nf-field input,.note-form .nf-field textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;transition:.2s;resize:vertical;}
+.note-form .nf-field input:focus,.note-form .nf-field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(79,110,247,.06);}
+
+/* ── Placeholder for Qianfan Agent ── */
+.qf-placeholder{background:#f0f0ff;border:2px dashed #b0b8ff;border-radius:var(--radius);padding:24px;text-align:center;margin-top:12px;}
+.qf-placeholder .qf-icon{font-size:36px;margin-bottom:8px;}
+.qf-placeholder .qf-text{font-size:13px;color:#6a6ee0;font-weight:500;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ Login Page ═══════════════════ -->
+<div id="loginPage" class="login-page">
+  <div class="login-bg-grid"></div>
+  <div class="login-bg-orb o1"></div>
+  <div class="login-bg-orb o2"></div>
+  <div class="login-bg-orb o3"></div>
+
+  <div class="login-card">
+    <div class="lc-decor tl"></div>
+    <div class="lc-decor br"></div>
+
+    <div class="lc-header">
+      <div class="lc-chip">AI + Hardware Lab</div>
+      <h2>登录平台</h2>
+      <p class="lc-sub">AI+硬件实训平台 · 百度千帆驱动</p>
+    </div>
+
+    <!-- Role Tabs -->
+    <div class="lc-role-tabs" id="lcRoleTabs">
+      <button class="lc-role-tab student active" onclick="switchLoginRole('student')">
+        <span class="lc-role-emoji">🖐</span>我是学生
+      </button>
+      <button class="lc-role-tab teacher" onclick="switchLoginRole('teacher')">
+        <span class="lc-role-emoji">📊</span>我是老师
+      </button>
+    </div>
+
+    <!-- Form -->
+    <div class="lc-field">
+      <label>👤 账号 / 姓名</label>
+      <div class="lc-input-wrap">
+        <span class="lc-input-icon">👤</span>
+        <input type="text" id="loginAccount" placeholder="输入你的姓名或账号" autocomplete="name">
+      </div>
+    </div>
+    <div class="lc-field">
+      <label>🔑 学号 / 工号</label>
+      <div class="lc-input-wrap">
+        <span class="lc-input-icon">🪪</span>
+        <input type="text" id="loginId" placeholder="输入学号或教师工号" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin();">
+      </div>
+    </div>
+    <div class="lc-hint" id="lcHint">学生请输入学号，教师请输入工号</div>
+
+    <div class="lc-error" id="lcError"></div>
+
+    <button class="lc-submit" id="lcSubmitBtn" onclick="doLogin()">
+      登 录 平 台 →
+    </button>
+
+    <div class="lc-footer">
+      首次使用？请联系 <span onclick="alert('请联系课程管理员：teacher@ailab.cn')">课程管理员</span> 获取账号
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Top Nav ═══════════════════ -->
+<div id="appNav" class="app-nav" style="display:none;">
+  <span class="nav-logo" onclick="goCalendar()">AI+HW Lab</span>
+  <span class="nav-sep"></span>
+  <span class="nav-title" id="navTitle">Phase 01 · Day 1-2</span>
+  <span class="nav-link" onclick="goPath()" style="margin-left:8px;">🗺 学习路径</span>
+  <span class="nav-link" onclick="goFAQ()">📚 知识库</span>
+  <span class="nav-link" onclick="goDoc()">📄 文档解释</span>
+  <span class="nav-link" onclick="goNotes()">📓 实验笔记</span>
+  <div class="nav-right">
+    <span class="nav-alert-badge" id="navAlertBadge" style="display:none;" onclick="this.style.display='none'">0</span>
+    <span class="nav-link" onclick="goER()" style="color:var(--orange);font-weight:600;">🚨 故障急诊</span>
+    <span class="nav-link" onclick="goCalendar()" style="background:var(--blue);color:#fff;padding:5px 14px;border-radius:8px;font-weight:600;">🏠 主界面</span>
+    <span class="nav-role student" id="navRole">🖐 学生</span>
+    <span id="navLogout" class="nav-link" style="cursor:pointer;display:none;" onclick="doLogout()">↩ 退出</span>
+  </div>
+</div>
+
+<!-- ═══════════════════ Calendar Page ═══════════════════ -->
+<div id="calendarPage" class="calendar-page">
+  <!-- Phase Tabs -->
+  <div class="cal-phase-tabs">
+    <span class="cal-phase-tab active" onclick="switchPhaseTab(this,0)">Phase 01 · 国产AI基础</span>
+    <span class="cal-phase-tab" onclick="switchPhaseTab(this,1)">Phase 02 · 新型硬件设计</span>
+    <span class="cal-phase-tab" onclick="switchPhaseTab(this,2)">Phase 03 · 环境感知</span>
+    <span class="cal-phase-tab" onclick="switchPhaseTab(this,3)">Phase 04 · 触觉反馈</span>
+    <span class="cal-phase-tab" onclick="switchPhaseTab(this,4)">Phase 05 · 具身智能</span>
+  </div>
+  <div class="cal-wrap">
+    <div class="cal-main">
+      <div class="page-header">
+        <span class="phase-chip">Phase 01 · 国产AI技术基础 · 5.5天</span>
+        <h2>课程日历</h2>
+        <p class="sub">点击课程卡片 → 观看Demo → 选择学习方式 → 开始实验</p>
+      </div>
+      <div id="calMainContent"></div>
+    </div>
+
+    <div class="cal-side">
+      <div class="mini-cal">
+        <div class="mc-head"><span style="cursor:pointer;" onclick="changeCalMonth(-1)">‹</span><span id="mcMonthLabel">2026年 7月</span><span style="cursor:pointer;" onclick="changeCalMonth(1)">›</span></div>
+        <div class="mc-grid" id="mcGrid"></div>
+      </div>
+
+      <div class="side-block side-stats">
+        <h5>📊 今日概况</h5>
+        <div class="side-stat-row"><span>实验课程</span><span class="ssr-val">3 节</span></div>
+        <div class="side-stat-row"><span>AI协作任务</span><span class="ssr-val">6 项</span></div>
+        <div class="side-stat-row"><span>预计产出</span><span class="ssr-val">2 件</span></div>
+      </div>
+
+      <div class="side-block">
+        <h5>📈 学习进度</h5>
+        <div class="prog-bar"><div class="fill" style="width:25%"></div></div>
+        <p class="prog-text">1/4 节已完成</p>
+      </div>
+
+      <div class="side-block">
+        <h5>🎯 产出物清单</h5>
+        <div class="chk-item done" onclick="this.classList.toggle('done')"><span class="chk"></span><span class="label">ESP32-S3开发环境</span></div>
+        <div class="chk-item done" onclick="this.classList.toggle('done')"><span class="chk"></span><span class="label">"龙虾"固件刷入成功</span></div>
+        <div class="chk-item" onclick="this.classList.toggle('done')"><span class="chk"></span><span class="label">云边协同通信实现</span></div>
+        <div class="chk-item" onclick="this.classList.toggle('done')"><span class="chk"></span><span class="label">3D龙虾模型文件</span></div>
+      </div>
+
+      <div class="side-block" style="text-align:center;">
+        <button class="btn danger" style="width:100%;padding:12px;font-size:13px;" onclick="openSafetyChecklist()">⚠️ 通电前安全检查清单</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Mode Selection Page ═══════ -->
+<div id="modePage" class="mode-page">
+  <div class="mode-wrap">
+    <span class="back-link" onclick="goCalendar()">← 返回日历</span>
+    <div class="demo-block" id="demoBlock" onclick="this.innerHTML='<span style=font-size:15px;color:rgba(255,255,255,.6)>▶ 播放中 … 展示本节课实验成品效果</span>'">
+      <div style="font-size:48px;margin-bottom:12px;opacity:.9;">▶</div>
+      <div style="font-size:17px;font-weight:600;">Demo 视频</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:6px;">2-3 分钟 · 先看看今天要做出什么</div>
+    </div>
+    <div class="session-info">
+      <span class="chip morning" id="modeChip">上午 · 09:00-12:00</span>
+      <h2 id="modeTitle">大模型在硬件上的部署方式</h2>
+      <p class="meta" id="modeMeta">3 小时 · 边缘AI概念 · ESP32-S3入门</p>
+    </div>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">看完视频，选择你本节课的学习方式：</p>
+    <div style="text-align:center;margin-bottom:16px;">
+      <button class="btn danger" style="padding:14px 36px;font-size:15px;" onclick="openSafetyChecklist()">⚠️ 通电前安全检查清单</button>
+      <p style="font-size:11px;color:var(--text2);margin-top:6px;">接线前必须逐项确认 · 7 项全部通过方可通电</p>
+    </div>
+    <div class="mode-btns">
+      <button class="mode-btn guide" onclick="startContent('guide')">
+        <span class="big-emoji">🖐</span><h3>带带我</h3><p class="hint">分步教程 + AI主动引导 + 理解确认</p>
+      </button>
+      <button class="mode-btn solo" onclick="startContent('solo')">
+        <span class="big-emoji">✋</span><h3>我自己来</h3><p class="hint">拿材料自己干 · AI静默待唤</p>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Content Page ═══════ -->
+<div id="contentPage" class="content-page"><div class="content-layout"><div class="content-main" id="contentMain"></div></div></div>
+
+<!-- ═══════ Emergency Room ═══════ -->
+<div id="erPage" class="er-page">
+  <div class="er-wrap"><h2>🚨 故障急诊室</h2><p class="er-desc">不知道问题怎么描述？先选一个最接近的现象，进入智能排查。</p>
+    <div class="er-grid">
+      <div class="er-card" onclick="startERTree('noPower')"><div class="er-icon">🔌</div><div class="er-body"><h4>A. 开发板没有反应</h4><p>上电后指示灯不亮、没任何输出</p></div><span class="er-arrow">→</span></div>
+      <div class="er-card" onclick="startERTree('noSerial')"><div class="er-icon">🔗</div><div class="er-body"><h4>B. 电脑识别不到串口</h4><p>设备管理器里没有新串口设备</p></div><span class="er-arrow">→</span></div>
+      <div class="er-card" onclick="startERTree('flashFail')"><div class="er-icon">⬆️</div><div class="er-body"><h4>C. 烧录失败</h4><p>上传代码报错、刷不进去</p></div><span class="er-arrow">→</span></div>
+      <div class="er-card" onclick="startERTree('noOutput')"><div class="er-icon">📺</div><div class="er-body"><h4>D. 烧录成功但没有输出</h4><p>串口监视器空白、LED不亮</p></div><span class="er-arrow">→</span></div>
+      <div class="er-card" onclick="startERTree('noSensor')"><div class="er-icon">📡</div><div class="er-body"><h4>E. 传感器没有数据</h4><p>数据不变、数值为零、数值异常</p></div><span class="er-arrow">→</span></div>
+      <div class="er-card" onclick="triggerSafetyL3()"><div class="er-icon">⚠️</div><div class="er-body"><h4>F. 模块发热 / 冒烟 / 异响</h4><p style="color:var(--red);">—— 立即停止操作 ——</p></div><span class="er-arrow">→</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Learning Path Map ═══════ -->
+<div id="pathPage" class="path-page">
+  <div class="path-wrap"><h2>🗺 学习路径地图</h2><p class="path-desc">23.5天 · 五个阶段 · 从基础到具身智能</p>
+    <div class="path-timeline">
+      <div class="path-phase" onclick="showPathDetail('p1')"><div class="pp-dot done"></div><div class="pp-title">Phase 01</div><div class="pp-days">5.5 天</div><div class="pp-topics">国产AI技术基础<br>AI Agent + 龙虾3D模型</div></div>
+      <div class="path-phase" onclick="showPathDetail('p2')"><div class="pp-dot current"></div><div class="pp-title">Phase 02</div><div class="pp-days">4 天</div><div class="pp-topics">新型硬件设计<br>3D打印件 + CNC样品<br>Arduino Demo</div></div>
+      <div class="path-phase" onclick="showPathDetail('p3')"><div class="pp-dot upcoming"></div><div class="pp-title">Phase 03</div><div class="pp-days">6 天</div><div class="pp-topics">环境感知<br>传感器 + 声音控制灯<br>Edge Impulse模型</div></div>
+      <div class="path-phase" onclick="showPathDetail('p4')"><div class="pp-dot upcoming"></div><div class="pp-title">Phase 04</div><div class="pp-days">4 天</div><div class="pp-topics">触觉反馈集成<br>触摸菜单 + 智能灯带<br>智能小车</div></div>
+      <div class="path-phase" onclick="showPathDetail('p5')"><div class="pp-dot upcoming"></div><div class="pp-title">Phase 05</div><div class="pp-days">4 天</div><div class="pp-topics">具身智能控制<br>完整AI机器人 + 路演</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Path Detail Modal -->
+<div class="modal-overlay" id="pathDetailModal">
+  <div class="modal-box path-modal">
+    <div class="m-icon" id="pathDetailIcon">🗺</div>
+    <h3 id="pathDetailTitle">Phase 01</h3>
+    <div class="path-detail-body" id="pathDetailBody"></div>
+    <div class="m-btns">
+      <button class="btn ghost" onclick="document.getElementById('pathDetailModal').classList.remove('open')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Knowledge Base / FAQ ═══════ -->
+<div id="faqPage" class="faq-page">
+  <div class="faq-wrap"><h2>📚 知识库 & FAQ</h2><p class="faq-desc">课程常见问题、硬件资料速查、排错经验汇总</p>
+    <div class="faq-search"><input type="text" id="faqSearchInput" placeholder="搜索问题…（如：串口、驱动、烧录、HTTP返回-1）" oninput="filterFAQ()"></div>
+    <div class="faq-tabs"><span class="faq-tab active" onclick="filterFAQ('all',this)">全部</span><span class="faq-tab" onclick="filterFAQ('hw',this)">🔌 硬件</span><span class="faq-tab" onclick="filterFAQ('sw',this)">💻 软件/代码</span><span class="faq-tab" onclick="filterFAQ('env',this)">⚙️ 环境配置</span><span class="faq-tab" onclick="filterFAQ('ai',this)">🤖 AI/模型</span></div>
+    <div class="faq-list" id="faqList"></div>
+  </div>
+</div>
+
+<!-- ═══════ Document Explainer ═══════ -->
+<div id="docPage" class="doc-page">
+  <div class="doc-wrap"><h2>📄 文档解释器</h2><p class="doc-desc">把datasheet、官方文档、技术手册转成大白话。粘贴文本或上传文件。</p>
+    <div class="doc-upload" onclick="document.getElementById('docFileInput').click()"><div class="du-icon">📤</div><div class="du-text">点击上传文档</div><div class="du-hint">支持 .txt .md .pdf .docx .html</div><input type="file" id="docFileInput" style="display:none;" accept=".txt,.md,.pdf,.docx,.html" onchange="handleDocUpload(this)"></div>
+    <div class="doc-paste"><h4>或直接粘贴文本</h4><textarea id="docPasteArea" placeholder="把datasheet原文、函数说明、报错日志…粘贴到这里，AI帮你转成大白话"></textarea><button class="btn primary sm" style="margin-top:10px;" onclick="explainDoc()">🔍 解释这段文档</button></div>
+    <div class="doc-result" id="docResult"><h4>✅ 大白话解释</h4><div class="dr-content" id="docResultContent"></div></div>
+  </div>
+</div>
+
+<!-- ═══════ Experiment Notes ═══════ -->
+<div id="notesPage" class="notes-page">
+  <div class="notes-wrap"><h2>📓 实验笔记</h2><p class="notes-desc">系统自动记录你的实验过程，也可手动添加。</p>
+    <button class="btn primary sm" style="margin-bottom:18px;" onclick="toggleNoteForm()">✏️ 写新笔记</button>
+    <div class="note-form" id="noteForm">
+      <div class="nf-field"><label>实验名称</label><input id="nfName" placeholder="如：龙虾固件刷写与联调"></div>
+      <div class="nf-field"><label>使用硬件</label><input id="nfHw" placeholder="ESP32-S3 DevKitC, USB数据线"></div>
+      <div class="nf-field"><label>使用软件</label><input id="nfSw" placeholder="Arduino IDE 2.x, esptool"></div>
+      <div class="nf-field"><label>关键步骤</label><textarea id="nfSteps" rows="3" placeholder="1. 安装CH343驱动&#10;2. 连接USB到COM3&#10;3. 执行刷写命令..."></textarea></div>
+      <div class="nf-field"><label>遇到的问题</label><textarea id="nfProblems" rows="2" placeholder="串口识别不到、烧录报错chip not detected..."></textarea></div>
+      <div class="nf-field"><label>排查过程</label><textarea id="nfDebug" rows="2" placeholder="换USB线→安装驱动→按住BOOT再刷写..."></textarea></div>
+      <div class="nf-field"><label>最终结果</label><textarea id="nfResult" rows="2" placeholder="固件刷入成功，板载LED正常闪烁，串口有输出"></textarea></div>
+      <div class="nf-field"><label>我学会了</label><textarea id="nfLearned" rows="2" placeholder="理解了固件刷写流程，知道BOOT按键时机..."></textarea></div>
+      <div class="nf-field"><label>下一次注意</label><input id="nfNext" placeholder="先确认USB线是数据线不是充电线"></div>
+      <button class="btn primary" onclick="saveNote()">💾 保存笔记</button><button class="btn ghost" style="margin-left:8px;" onclick="toggleNoteForm()">取消</button>
+    </div>
+    <div class="notes-grid" id="notesGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════ Teacher Dashboard ═══════ -->
+<div id="teacherPage" class="teacher-page">
+  <div class="teacher-wrap"><h2>📊 教学驾驶舱</h2><div style="display:flex;gap:10px;margin-bottom:20px;"><button class="btn primary" onclick="goCourseEditor()">📝 课程管理</button></div><p class="sub">Phase 01 · Day 1-2 · 大模型硬件部署 + 龙虾固件 + 云边协同</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="st-icon b">👥</div><div><div class="st-num">20</div><div class="st-lbl">在线学生</div></div></div>
+      <div class="stat-card" style="border-left:3px solid var(--green);"><div class="st-icon g">🟢</div><div><div class="st-num" style="color:var(--green)">14</div><div class="st-lbl">正常</div></div></div>
+      <div class="stat-card" style="border-left:3px solid var(--orange);"><div class="st-icon y">🟡</div><div><div class="st-num" style="color:var(--orange)">4</div><div class="st-lbl">可能卡住</div></div></div>
+      <div class="stat-card" style="border-left:3px solid var(--red);"><div class="st-icon r">🔴</div><div><div class="st-num" style="color:var(--red)">2</div><div class="st-lbl">需关注</div></div></div>
+    </div>
+    <div class="section-card"><h5>🔥 今日高频问题 Top 5</h5>
+      <div class="tag-list"><span class="tl" onclick="quickAsk('HTTP返回-1怎么解决')">"HTTP 返回 -1"(7人)</span><span class="tl" onclick="quickAsk('怎么查电脑IP')">"怎么查电脑IP"(5人)</span><span class="tl" onclick="quickAsk('JSON解析失败')">"JSON解析失败"(3人)</span><span class="tl" onclick="quickAsk('串口识别不到怎么办')">"串口识别不到"(3人)</span><span class="tl" onclick="quickAsk('刷写报错chip not detected')">"刷写报错chip not detected"(2人)</span></div>
+    </div>
+    <div class="student-detail" id="studentDetail">
+      <h5 id="sdName">张三</h5><div class="sd-meta"><span id="sdCourse">Day2 云边协同</span><span id="sdProgress">Step 3/5</span><span id="sdStatus"><span class="dot-s y"></span>可能卡住</span><span id="sdWait">停留 12 分钟</span></div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">💬 对话历史</div><div class="sd-log" id="sdLog">—</div>
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn ghost sm" onclick="document.getElementById('studentDetail').style.display='none'">收起</button>
+        <button class="btn primary sm" onclick="alert('已通知该学生：老师马上到工位查看。')">🔔 通知学生</button>
+      </div>
+    </div>
+    <div class="section-card" id="teacherAlertSection"><h5>🚨 安全告警队列</h5>
+      <div style="font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🛡️</span>暂无实时告警 · 系统持续监控中</div>
+    </div>
+
+    <!-- Phase distribution mini view -->
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <div class="phase-dist-card" style="--c:var(--blue);"><span class="pdc-dot" style="background:var(--blue);"></span><span>P1</span><span class="pdc-num">8人</span></div>
+      <div class="phase-dist-card" style="--c:var(--green);"><span class="pdc-dot" style="background:var(--green);"></span><span>P2</span><span class="pdc-num">6人</span></div>
+      <div class="phase-dist-card" style="--c:var(--orange);"><span class="pdc-dot" style="background:var(--orange);"></span><span>P3</span><span class="pdc-num">4人</span></div>
+      <div class="phase-dist-card" style="--c:#ff6b6b;"><span class="pdc-dot" style="background:#ff6b6b;"></span><span>P4</span><span class="pdc-num">2人</span></div>
+    </div>
+
+    <div class="data-tbl"><table><thead><tr><th style="width:80px;">学生</th><th>课程</th><th style="width:90px;">进度</th><th style="width:80px;">状态</th><th>最近提问</th><th style="width:60px;"></th></tr></thead><tbody>
+      <tr class="clickable" onclick="showStudentDetail('张三','Day2 云边协同','Step 3/5','可能卡住','y',['怎么查电脑IP？','AI：在终端输入 ipconfig','HTTP返回 -1 怎么办？','AI：先关防火墙试。确认电脑IP。同WiFi。','还是不行…','AI：IP变了吗？重新ipconfig确认端口11434。'])"><td><b>张三</b></td><td>Day2 云边协同</td><td><div class="inline-prog"><div class="ip-fill" style="width:60%;"></div></div><span style="font-size:11px;">Step 3/5</span></td><td><span class="dot-s y"></span>可能卡住</td><td style="font-size:12px;color:var(--red);">"HTTP 返回 -1"</td><td style="text-align:center;color:var(--blue);font-weight:600;">→</td></tr>
+      <tr class="clickable" onclick="showStudentDetail('李四','Day2 云边协同','Step 5/5','正常','g',['ESP32连上WiFi了','AI：很好！下一步发HTTP请求。','串口看到大模型回复了！'])"><td><b>李四</b></td><td>Day2 云边协同</td><td><div class="inline-prog"><div class="ip-fill" style="width:100%;background:var(--green);"></div></div><span style="font-size:11px;">Step 5/5 ✅</span></td><td><span class="dot-s g"></span>正常</td><td style="font-size:12px;color:var(--text2);">—</td><td style="text-align:center;color:var(--blue);font-weight:600;">→</td></tr>
+      <tr class="clickable" onclick="showStudentDetail('王五','Day1 固件刷写','Step 2/4','需关注','r',['esptool报错 chip not detected','AI：按住BOOT→按RESET→松BOOT→重试','还是不行','AI：确认数据线支持数据传输。COM口对吗？'])"><td><b>王五</b></td><td>Day1 固件刷写</td><td><div class="inline-prog"><div class="ip-fill" style="width:50%;background:var(--red);"></div></div><span style="font-size:11px;color:var(--red);">Step 2/4</span></td><td><span class="dot-s r"></span>需关注</td><td style="font-size:12px;color:var(--red);">"chip not detected"</td><td style="text-align:center;color:var(--blue);font-weight:600;">→</td></tr>
+      <tr class="clickable" onclick="showStudentDetail('赵六','Day2 云边协同','Step 4/5','正常','g',['LED控制代码写好了','AI：上传试试','跑通了！','AI：下一步加按钮触发对话。'])"><td><b>赵六</b></td><td>Day2 云边协同</td><td><div class="inline-prog"><div class="ip-fill" style="width:80%;"></div></div><span style="font-size:11px;">Step 4/5</span></td><td><span class="dot-s g"></span>正常</td><td style="font-size:12px;color:var(--text2);">"可以换更大模型吗"</td><td style="text-align:center;color:var(--blue);font-weight:600;">→</td></tr>
+      <tr class="clickable" onclick="showStudentDetail('孙七','Day1 环境搭建','Step 3/4','正常','g',['下载很慢','AI：试国内镜像，给你链接','装好了！'])"><td><b>孙七</b></td><td>Day1 环境搭建</td><td><div class="inline-prog"><div class="ip-fill" style="width:75%;"></div></div><span style="font-size:11px;">Step 3/4</span></td><td><span class="dot-s g"></span>正常</td><td style="font-size:12px;color:var(--text2);">"ESP32包下载好慢"</td><td style="text-align:center;color:var(--blue);font-weight:600;">→</td></tr>
+      <tr class="clickable" onclick="showStudentDetail('周八','Day1 固件刷写','Step 4/4','需关注','r',['烧录失败','AI：按住BOOT试','试了还是不行','AI：把完整报错贴给我'])"><td><b>周八</b></td><td>Day1 固件刷写</td><td><div class="inline-prog"><div class="ip-fill" style="width:100%;background:var(--red);"></div></div><span style="font-size:11px;color:var(--red);">Step 4/4 ⚠</span></td><td><span class="dot-s r"></span>需关注</td><td style="font-size:12px;color:var(--red);">"烧录还是失败"</td><td style="text-align:center;color:var(--blue);font-weight:600;">→</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══════ Course Editor (Teacher) ═══════ -->
+<div id="cePage" class="ce-page">
+  <div class="ce-wrap">
+    <h2>📝 课程编辑器</h2>
+    <p class="ce-desc">教师在这里录入每天的课程内容、Demo视频链接，学生端日历会实时更新。</p>
+
+    <!-- Phase selector tabs -->
+    <div class="ce-tabs" id="cePhaseTabs">
+      <span class="ce-tab active" onclick="ceSelectPhase(0,this)">P1 · 国产AI基础</span>
+      <span class="ce-tab" onclick="ceSelectPhase(1,this)">P2 · 新型硬件设计</span>
+      <span class="ce-tab" onclick="ceSelectPhase(2,this)">P3 · 环境感知</span>
+      <span class="ce-tab" onclick="ceSelectPhase(3,this)">P4 · 触觉反馈</span>
+      <span class="ce-tab" onclick="ceSelectPhase(4,this)">P5 · 具身智能</span>
+    </div>
+
+    <!-- Day blocks rendered here -->
+    <div class="ce-form" id="ceForm">
+      <h4 id="cePhaseTitle">Phase 01 · 国产AI技术基础</h4>
+      <div id="ceDaysContainer"></div>
+      <div class="ce-btn-row">
+        <button class="btn ghost" onclick="ceAddDay()">➕ 添加一天</button>
+        <button class="btn primary" onclick="ceSaveAll()">💾 保存全部</button>
+        <button class="btn ghost" onclick="ceResetAll()">🔄 恢复默认</button>
+      </div>
+    </div>
+
+    <!-- Live preview -->
+    <div class="ce-preview" id="cePreview">
+      <h4>👁 学生端预览</h4>
+      <div id="cePreviewContent" style="font-size:13px;color:var(--text2);">选择阶段后这里会显示学生端日历预览…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Floating Ball ═══════ -->
+<div class="float-ball" id="floatBall" onclick="toggleFloat()" style="display:none;">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+  <div class="bubble-ring"></div>
+  <div class="badge-dot" id="ballAlertBadge" style="display:none;">0</div>
+</div>
+
+<!-- ═══════ Floating Chat Panel ═══════ -->
+<div class="float-panel" id="floatPanel">
+  <div class="ph">
+    <div class="agent-avatar">🤖</div>
+    <div class="agent-info">
+      <div class="agent-name">AI 硬件助教</div>
+      <div class="agent-status">基于百度千帆 · 在线</div>
+    </div>
+    <div class="ph-actions">
+      <button class="ph-btn" title="清空对话" onclick="clearChat()">🗑</button>
+      <button class="ph-btn close-btn" title="关闭" onclick="toggleFloat()">×</button>
+    </div>
+  </div>
+  <div class="pm" id="panelMsgs">
+    <div class="time-divider">今天</div>
+    <div class="mr auto"><div class="av"></div><div class="msg-wrap"><div class="mb">👋 卡住了随时问我——接线、刷写、报错、看不懂文档都可以。<br><br><b>千帆Agent接入中…</b> 当前为模拟演示模式。</div></div></div>
+  </div>
+  <div class="quick-chips" id="quickChips">
+    <button class="chip-btn" onclick="quickAsk('串口识别不到怎么办')">🔌 串口识别不到</button>
+    <button class="chip-btn" onclick="quickAsk('接线这样对不对')">🔗 接线这样对不对</button>
+    <button class="chip-btn" onclick="quickAsk('这个报错什么意思')">❌ 报错什么意思</button>
+    <button class="chip-btn" onclick="quickAsk('帮我解释这段文档')">📄 解释文档</button>
+  </div>
+  <div class="img-preview" id="imgPreview" style="display:none;"></div>
+  <div class="pi">
+    <label class="upload-btn" title="上传图片">📎<input type="file" accept="image/*" multiple onchange="handleImageUpload(this)"></label>
+    <textarea id="msgInput" placeholder="输入你的问题…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="send()" disabled>↑</button>
+  </div>
+  <!-- Qianfan Agent Placeholder -->
+  <div class="qf-placeholder">
+    <div class="qf-icon">🔗</div>
+    <div class="qf-text">千帆Agent API接入点（开发中）<br>届时将替换模拟回复为百度千帆ERNIE模型推理</div>
+  </div>
+</div>
+
+<!-- ═══════ Safety Checklist Modal (7 items) ═══════ -->
+<div class="modal-overlay" id="safetyCheckModal">
+  <div class="modal-box">
+    <div class="m-icon">⚠️</div>
+    <h3>通电前安全检查清单</h3>
+    <p style="font-size:12px;color:var(--red);margin-bottom:16px;">以下 7 项全部确认后方可通电。无法确认任何一项请暂停操作。</p>
+    <div class="safety-checklist" id="safetyChecklist">
+      <div class="sc-item"><span class="sc-check"></span><span class="sc-label">VCC 电压已确认（3.3V / 5V？对照datasheet）</span></div>
+      <div class="sc-item"><span class="sc-check"></span><span class="sc-label">GND 已共地（开发板与模块GND已连接）</span></div>
+      <div class="sc-item"><span class="sc-check"></span><span class="sc-label">模块工作电压已查清（对照模块datasheet）</span></div>
+      <div class="sc-item"><span class="sc-check"></span><span class="sc-label">信号线 GPIO 与代码中声明一致</span></div>
+      <div class="sc-item"><span class="sc-check"></span><span class="sc-label">没有裸露短路线（杜邦线金属部分未相互接触）</span></div>
+      <div class="sc-item"><span class="sc-check"></span><span class="sc-label">外部电源极性已确认（正负极没有接反）</span></div>
+      <div class="sc-item"><span class="sc-check"></span><span class="sc-label">当前接线已拍照记录（方便追溯排查）</span></div>
+    </div>
+    <p class="sc-summary" id="scSummary">已确认：0 / 7</p>
+    <div class="m-btns">
+      <button class="btn ghost" onclick="closeSafetyChecklist()">取消</button>
+      <button class="btn primary" id="scConfirmBtn" disabled onclick="confirmSafetyChecklist()">全部确认，可以通电</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Safety Alert Modal ═══════ -->
+<div class="modal-overlay" id="safetyModal">
+  <div class="modal-box">
+    <div class="m-icon">⚠️</div>
+    <h3>安全提醒</h3>
+    <p id="safetyMsg">请先断开电源。在确认接线正确之前，不建议继续通电。找老师或助教现场确认。</p>
+    <div class="m-btns">
+      <button class="btn ghost" onclick="document.getElementById('safetyModal').classList.remove('open')">我知道了</button>
+      <button class="btn danger" onclick="document.getElementById('safetyModal').classList.remove('open');alert('已通知老师。请等待老师到场。')">需要老师帮助</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════ Global State ═══════════════════
+let currentSession = null;
+let contentMode = null;
+let chatCtx = {count:0, lastTopic:'', erTree:null, erStep:0};
+let safetyAlertQueue = []; // {level:'L3'|'L4'|'info', type:'发热'|'冒烟'|'确认通电'..., time:Date, detail:'...', student:'学生(default)', handled:false}
+
+function emitAlert(level, type, detail, student){
+  const alert = {level, type, time: Date.now(), timeStr: new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}), detail, student: student||'学生', handled: false, id: 'alert_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)};
+  safetyAlertQueue.unshift(alert);
+  if(safetyAlertQueue.length > 50) safetyAlertQueue.pop(); // cap
+  updateAlertBadges();
+  renderTeacherAlerts();
+}
+
+function updateAlertBadges(){
+  const unhandled = safetyAlertQueue.filter(a=>!a.handled).length;
+  // Nav bar badge
+  const navAlert = document.getElementById('navAlertBadge');
+  if(navAlert){navAlert.textContent = unhandled; navAlert.style.display = unhandled>0 ? 'flex':'none';}
+  // Floating ball badge
+  const ballBadge = document.getElementById('ballAlertBadge');
+  if(ballBadge){ballBadge.textContent = unhandled; ballBadge.style.display = unhandled>0 ? 'flex':'none';}
+}
+
+function renderTeacherAlerts(){
+  const section = document.getElementById('teacherAlertSection');
+  if(!section) return;
+  const unhandled = safetyAlertQueue.filter(a=>!a.handled);
+  if(unhandled.length === 0){
+    section.innerHTML = `<h5>🚨 安全告警队列</h5>
+      <div style="font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;"><span style="font-size:18px;">🛡️</span>暂无实时告警 · 系统持续监控中</div>`;
+  } else {
+    const levelColors = {'L4':'var(--red)','L3':'var(--orange)','info':'var(--blue)'};
+    const levelIcons = {'L4':'🔴','L3':'🟠','info':'🔵'};
+    section.innerHTML = `<h5>🚨 安全告警队列 <span class="alert-badge" id="taBadge">${unhandled.length}</span></h5>` +
+    unhandled.map(a=>`<div class="alert-item" id="${a.id}" style="border-left:4px solid ${levelColors[a.level]};animation:fadeUp .3s ease;">
+      <div class="alert-head">
+        <span class="alert-lvl" style="background:${levelColors[a.level]}20;color:${levelColors[a.level]}">${levelIcons[a.level]} ${a.level}</span>
+        <span class="alert-type">${a.type}</span>
+        <span class="alert-time">${a.timeStr}</span>
+      </div>
+      <div class="alert-body">${a.detail}</div>
+      <div class="alert-foot"><span>👤 ${a.student}</span><button class="btn ghost sm" onclick="markAlertHandled('${a.id}')">✅ 已处理</button></div>
+    </div>`).join('');
+  }
+}
+
+function markAlertHandled(id){
+  const a = safetyAlertQueue.find(a=>a.id===id);
+  if(a){a.handled = true;}
+  updateAlertBadges();
+  renderTeacherAlerts();
+}
+
+// ═══════════════════ Course Data ═══════════════════
+const sessions = {
+  'day1-am':{
+    title:'大模型在硬件上的部署方式', time:'上午 · 09:00-12:00 · 3小时',
+    chip:'morning',chipLabel:'上午 · 09:00-12:00', meta:'边缘AI概念 · ESP32-S3入门 · AI辅助搭建开发环境',
+    guideSteps:[
+      {title:'认识边缘AI与大模型硬件部署', body:'<p style="margin-bottom:12px;">在动手之前，先搞清楚：<b>为什么把AI放到硬件上跑？</b></p><div class="l"><span class="l-tag do">理解</span> 传统AI：数据上传云端→推理→返回。延迟高、要网络、有隐私风险</div><div class="l"><span class="l-tag do">理解</span> 边缘AI：模型直接跑在设备上。离线可用、毫秒响应、数据不出设备</div><div class="l"><span class="l-tag do">理解</span> 云边协同：简单本地做，复杂云端做。各取所长</div><div class="l"><span class="l-tag why">为什么</span> ESP32-S3是边缘AI入门最佳选择：便宜(~30元)、有神经网络加速器、WiFi/BLE齐全</div><div class="ai-tip"><span>💡</span><span>不理解概念？问AI：<i>"边缘AI和云端AI有什么区别？ESP32-S3能跑什么模型？"</i></span></div>',whyQ:'为什么要把AI放到硬件上跑，而不是全用云端？'},
+      {title:'认识ESP32-S3开发板', body:'<div class="l"><span class="l-tag do">观察</span> 拿出ESP32-S3-DevKitC，找到：USB Type-C接口、BOOT/RESET按钮、GPIO排针、板载RGB LED</div><div class="l"><span class="l-tag why">为什么</span> 所有后续实验都基于这块板子。搞清楚每个部件位置，能省大量排错时间</div><div class="l"><span class="l-tag warn">注意</span> 捏PCB边缘拿板子，别直接摸芯片引脚。静电可能损坏芯片</div><div class="ai-tip"><span>💡</span><span>不知道怎么辨认部件？拍照问AI：<i>"帮我标注板子上各个部件"</i></span></div>',whyQ:'ESP32-S3板子上BOOT和RESET按钮分别有什么用？'},
+      {title:'AI辅助安装Arduino IDE与ESP32支持包', body:'<div class="l"><span class="l-tag do">操作</span> 去 arduino.cc 下载 Arduino IDE 2.x</div><div class="l"><span class="l-tag do">操作</span> 首选项→附加开发板管理器网址→填入：</div><div class="code-blk">https://espressif.github.io/arduino-esp32/package_esp32_index.json</div><div class="l"><span class="l-tag do">操作</span> 开发板管理器→搜索esp32→安装 <b>esp32 by Espressif Systems</b> (3.0+)</div><div class="l"><span class="l-tag ok">验证</span> 工具→开发板→能看到 ESP32S3 Dev Module</div><div class="l"><span class="l-tag warn">常见错</span> 下载慢→让AI帮你找国内镜像源</div>',whyQ:'Arduino IDE首选项里添加的JSON网址是干什么的？'},
+      {title:'安装串口驱动 + 首次连接测试', body:'<div class="l"><span class="l-tag do">操作</span> ESP32-S3板载CH343芯片。Windows需装驱动（让AI帮你找下载链接）</div><div class="l"><span class="l-tag do">操作</span> 连接USB→Arduino IDE→工具→端口→选COM口→开发板选ESP32S3 Dev Module</div><div class="l"><span class="l-tag do">操作</span> 打开Blink示例→把LED_BUILTIN改为48→上传</div><div class="l"><span class="l-tag ok">验证</span> 板载LED闪烁→🎉开发环境搭建完成！</div><div class="l"><span class="l-tag warn">常见错</span> 上传失败→按住BOOT再点上传→上传完松开</div>',whyQ:'上传Blink代码前，为什么要先确认串口号和开发板型号？'}
+    ]
+  },
+  'day1-pm':{
+    title:'"龙虾"固件刷写与基础联调', time:'下午 · 13:30-16:30 · 3小时',
+    chip:'afternoon',chipLabel:'下午 · 13:30-16:30', meta:'固件刷写实战 · AI辅助生成指令',
+    guideSteps:[
+      {title:'了解"龙虾"固件是什么', body:'<p style="margin-bottom:12px;">"龙虾"固件是预编译的ESP32-S3固件，内置LED控制、按钮交互、串口通信。</p><div class="l"><span class="l-tag do">理解</span> 固件=提前写好的程序，直接烧进芯片就能跑。不需要你写一行代码</div><div class="l"><span class="l-tag why">为什么</span> 先跑通现成固件→建立信心→后面再学写自己的。先吃到甜头再学做饭</div>',whyQ:'先刷现成固件再学写代码，这个顺序的好处是什么？'},
+      {title:'老师演示：刷写流程', body:'<div class="l"><span class="l-tag do">观看</span> 老师在大屏幕演示完整刷写。注意：刷写工具选择、BOOT按下时机、成功输出长什么样</div><div class="l"><span class="l-tag do">记录</span> 截图或记笔记。后面自己操作时会用到</div>',whyQ:'刷写固件时BOOT键的操作时机为什么很重要？'},
+      {title:'动手：AI辅助生成刷写指令', body:'<div class="l"><span class="l-tag do">操作</span> 拿到龙虾固件.bin文件→打开终端→用esptool刷写。不确定命令？问AI：</div><div class="code-blk">esptool.py --chip esp32s3 --port COM3 write_flash 0x0 lobster.bin</div><div class="l"><span class="l-tag ok">验证</span> 刷写完按RESET→LED亮/串口有输出→固件启动成功</div><div class="l"><span class="l-tag warn">常见错</span> chip not detected→按住BOOT→按RESET→松BOOT→重试刷写</div><div class="ai-tip"><span>💡</span><span>刷写失败？终端报错贴给AI：<i>"esptool刷写报错：[粘贴报错]"</i></span></div>',whyQ:'esptool命令里 --chip esp32s3 和 --port COM3 分别指定了什么？'},
+      {title:'基础功能测试：和你的"龙虾"互动', body:'<div class="l"><span class="l-tag do">操作</span> 打开串口监视器(115200)→按按钮→看LED是否响应→串口是否有输出</div><div class="l"><span class="l-tag ok">验证</span> 按按钮→LED变化/串口有输出→🦞你的"龙虾"活了！</div>',whyQ:'串口监视器的波特率为什么要设为115200而不是别的值？'}
+    ]
+  },
+  'day1-qa':{
+    title:'辅导答疑 / 问题排查', time:'下午 · 16:30-17:30 · 1小时',
+    chip:'orange',chipLabel:'下午 · 16:30-17:30', meta:'AI辅助诊断刷写问题、排查固件功能',
+    guideSteps:[
+      {title:'今日常见问题速查', body:'<div class="l"><span class="l-tag warn">TOP1</span> <b>串口识别不到</b>→USB线是数据线还是充电线？装CH343驱动了吗？</div><div class="l"><span class="l-tag warn">TOP2</span> <b>刷写失败</b>→BOOT按对了吗？（按住BOOT→按RESET→松BOOT）</div><div class="l"><span class="l-tag warn">TOP3</span> <b>刷完没反应</b>→按RESET了吗？波特率115200？</div><div class="l"><span class="l-tag warn">TOP4</span> <b>ESP32包下载慢</b>→网络问题，问AI要国内镜像</div><div class="ai-tip"><span>💡</span><span>以上都不对？把现象+报错+你试过什么都告诉AI</span></div>',whyQ:'串口识别不到最常见的原因是USB线问题——为什么一条线会有"数据线"和"充电线"的区别？'},
+      {title:'自我排查清单', body:'<p style="margin-bottom:8px;">找老师之前，先过一遍（大部分问题到第3步就解决了）：</p><div class="l">□ 板子上电了吗？指示灯亮吗？</div><div class="l">□ USB线换过吗？是数据线不是充电线？</div><div class="l">□ COM口选对吗？有其他程序占用吗？</div><div class="l">□ BOOT按对了吗？</div><div class="l">□ 波特率是115200吗？</div><div class="l">□ 固件文件完整吗？重下载试试？</div><div class="l">□ 以上全试过还是不行→找老师</div>',whyQ:'为什么建议先自己排查3步以上再找老师，而不是一遇到问题就举手？'}
+    ]
+  },
+  'day2-am':{
+    title:'国产小板调用本地大模型', time:'上午 · 09:00-12:00 · 3小时',
+    chip:'morning',chipLabel:'上午 · 09:00-12:00', meta:'ESP32-S3↔本地大模型 · 云边协同闭环',
+    guideSteps:[
+      {title:'理解云边协同通信架构', body:'<p style="margin-bottom:12px;">核心目标：让ESP32-S3通过网络跟你电脑上的大模型对话。</p><div class="code-blk">ESP32-S3 ──WiFi/HTTP──→ 本地服务器 ──API──→ 大模型(Ollama等)\n   (硬件端)  ←──JSON响应──  (你的电脑)   ←──推理──</div><div class="l"><span class="l-tag do">理解</span> Day1.1中你已经部署了本地大模型(Ollama/vLLM/千帆本地版)</div><div class="l"><span class="l-tag do">理解</span> ESP32发HTTP请求→电脑上的大模型推理→返回结果→串口显示</div><div class="l"><span class="l-tag why">为什么</span> 这是"具身智能"的起点——硬件不再是孤立传感器，而是能跟大模型对话的智能终端</div>',whyQ:'云边协同中，为什么简单任务本地做、复杂任务云端做？'},
+      {title:'确认本地大模型API可用', body:'<div class="l"><span class="l-tag do">操作</span> 在电脑上确认大模型服务正在运行：</div><div class="code-blk"># Ollama用户\ncurl http://localhost:11434/api/generate -d \'{"model":"qwen2.5:1.5b","prompt":"你好"}\'</div><div class="l"><span class="l-tag ok">验证</span> 返回JSON且包含AI回复→API可用</div><div class="l"><span class="l-tag warn">常见错</span> connection refused→大模型服务没启动，回Day1.1检查</div>',whyQ:'为什么curl测试是验证API可用的最直接方法？'},
+      {title:'AI辅助编写ESP32端通信代码', body:'<div class="l"><span class="l-tag do">操作</span> 打开Arduino IDE新建项目。不会写HTTP通信代码？直接让AI生成：</div><div class="ai-tip"><span>💡</span><span>对AI说：<i>"帮我写ESP32-S3的Arduino代码，通过WiFi连接本地Ollama API，发送prompt并接收JSON响应，结果显示在串口"</i></span></div><div class="l" style="margin-top:12px;"><span class="l-tag do">操作</span> 修改三个地方：WIFI_SSID/密码、电脑局域网IP、模型名称</div><div class="l"><span class="l-tag ok">验证</span> 编译通过→上传→串口看到WiFi连接成功</div>',whyQ:'AI生成的代码，为什么要先检查WIFI_SSID、IP地址和模型名这三个地方？'},
+      {title:'联调：让ESP32跟大模型对话', body:'<div class="l"><span class="l-tag do">操作</span> 上传后打开串口监视器(115200)→观察WiFi连接→发送prompt→接收响应</div><div class="l"><span class="l-tag ok">验证</span> 串口里看到大模型回复→🎉云边协同闭环打通！</div><div class="l"><span class="l-tag warn">常见错</span> HTTP返回-1→检查防火墙是否拦截11434/8000端口</div><div class="l"><span class="l-tag warn">常见错</span> JSON解析失败→先打印原始响应，确认格式和解析逻辑一致</div>',whyQ:'HTTP返回-1最常见的三个原因是什么？'},
+      {title:'进阶：加一个按钮触发对话', body:'<div class="l"><span class="l-tag do">操作</span> 让AI帮你加按钮：按BOOT→发prompt给大模型→LED闪表示"思考中"→串口输出回复</div><div class="l"><span class="l-tag do">操作</span> 或接DHT11→读温度→发给大模型问"今天室温适合做什么"</div><div class="l"><span class="l-tag ok">验证</span> 物理按钮/传感器触发→大模型回复→闭环。你做出了<b>能跟AI对话的硬件</b></div>',whyQ:'用一个物理按钮触发大模型对话，比用键盘输入prompt好在哪里？'}
+    ]
+  }
+};
+
+// ═══════════════════ Login ═══════════════════
+let loginRole = 'student'; // current selected role
+let currentUser = null;   // {role, name, id} after login
+
+function switchLoginRole(role){
+  loginRole = role;
+  document.querySelectorAll('#lcRoleTabs .lc-role-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('#lcRoleTabs .lc-role-tab.'+role).classList.add('active');
+  // Update input placeholders
+  const idInput = document.getElementById('loginId');
+  const hint = document.getElementById('lcHint');
+  const submitBtn = document.getElementById('lcSubmitBtn');
+  if(role==='teacher'){
+    idInput.placeholder='输入教师工号';
+    hint.textContent='教师请输入已分配的工号';
+    idInput.className='teacher-field';
+    submitBtn.className='lc-submit teacher-submit';
+  }else{
+    idInput.placeholder='输入学号或教师工号';
+    hint.textContent='学生请输入学号，教师请输入工号';
+    idInput.className='';
+    submitBtn.className='lc-submit';
+  }
+}
+
+function doLogin(){
+  const account = document.getElementById('loginAccount').value.trim();
+  const id = document.getElementById('loginId').value.trim();
+  const errorEl = document.getElementById('lcError');
+
+  if(!account){errorEl.textContent='请输入账号或姓名';errorEl.style.opacity='1';return;}
+  if(!id){errorEl.textContent='请输入学号或工号';errorEl.style.opacity='1';return;}
+  if(id.length < 2){errorEl.textContent='学号/工号格式不正确';errorEl.style.opacity='1';return;}
+
+  errorEl.textContent='';
+  errorEl.style.opacity='0';
+
+  currentUser = {role: loginRole, name: account, id: id};
+  
+  // Animation: card shrink then redirect
+  const card = document.querySelector('.login-card');
+  card.style.transition='all .4s cubic-bezier(.4,0,.2,1)';
+  card.style.transform='scale(.96)';
+  card.style.opacity='.5';
+  
+  setTimeout(()=>{
+    if(currentUser.role==='teacher'){
+      enterAs('teacher');
+    }else{
+      goCalendar();
+    }
+  },350);
+}
+
+function doLogout(){
+  currentUser = null;
+  // Reset login form
+  document.getElementById('loginAccount').value = '';
+  document.getElementById('loginId').value = '';
+  document.getElementById('lcError').textContent = '';
+  switchLoginRole('student');
+  // Show login page
+  hideAll();
+  document.getElementById('loginPage').style.display = 'flex';
+  // Reset card animation
+  const card = document.querySelector('.login-card');
+  if(card){card.style.transform='';card.style.opacity='';}
+}
+
+// ═══════════════════ Page Navigation ═══════════════════
+function hideAll(){
+  ['loginPage','appNav','calendarPage','modePage','contentPage','teacherPage','erPage','pathPage','faqPage','docPage','notesPage','cePage'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+}
+
+function goCalendar(){
+  hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('calendarPage').style.display='block';
+  document.getElementById('floatBall').style.display='flex';
+  document.getElementById('navRole').textContent='🖐 学生';document.getElementById('navRole').className='nav-role student';
+  // Show logout if logged in as student
+  document.getElementById('navLogout').style.display = 'inline';
+  updateAlertBadges();
+  // Activate Phase 01 tab + render
+  document.querySelectorAll('.cal-phase-tab').forEach((t,i)=>{t.classList.toggle('active',i===0);});
+  renderCalendar(0);
+  renderMiniCal();
+}
+
+// ── Mini Calendar Navigation ──
+let mcYear = 2026, mcMonth = 7;
+function changeCalMonth(delta){
+  mcMonth += delta;
+  if(mcMonth > 12){ mcMonth = 1; mcYear++; }
+  if(mcMonth < 1){ mcMonth = 12; mcYear--; }
+  const label = document.getElementById('mcMonthLabel');
+  if(label) label.textContent = mcYear+'年 '+mcMonth+'月';
+  renderMiniCal();
+}
+function renderMiniCal(){
+  const grid = document.getElementById('mcGrid');
+  if(!grid) return;
+  const firstDay = new Date(mcYear, mcMonth-1, 1).getDay();
+  const daysInMonth = new Date(mcYear, mcMonth, 0).getDate();
+  const today = new Date();
+  let html = '<span class="dow">日</span><span class="dow">一</span><span class="dow">二</span><span class="dow">三</span><span class="dow">四</span><span class="dow">五</span><span class="dow">六</span>';
+  for(let i = 0; i < firstDay; i++) html += '<span class="day"></span>';
+  for(let d = 1; d <= daysInMonth; d++){
+    const isToday = (today.getFullYear()===mcYear && today.getMonth()+1===mcMonth && today.getDate()===d);
+    const isWeekend = (new Date(mcYear, mcMonth-1, d).getDay()===0 || new Date(mcYear, mcMonth-1, d).getDay()===6);
+    const classes = ['day'];
+    if(isToday) classes.push('today');
+    if(isWeekend) classes.push('ev');
+    if(isToday && isWeekend) classes.push('hl');
+    html += '<span class="'+classes.join(' ')+'">'+d+'</span>';
+  }
+  grid.innerHTML = html;
+}
+
+// ── Course Data: localStorage layer ──
+function getCourseData(){
+  try {
+    const raw = localStorage.getItem('courseData');
+    return raw ? JSON.parse(raw) : null;
+  } catch(e){ return null; }
+}
+function saveCourseDataToStore(data){
+  try { localStorage.setItem('courseData', JSON.stringify(data)); }
+  catch(e){ alert('存储失败，请检查浏览器空间。'); }
+}
+function getPhaseData(idx){
+  const saved = getCourseData();
+  return (saved && saved[idx]) ? saved[idx] : calPhaseData[idx];
+}
+
+// ── Course Editor ──
+let ceEditPhase = 0;
+let ceEditData = null; // deep copy of current phase being edited
+
+function goCourseEditor(){
+  hideAll();
+  document.getElementById('appNav').style.display='flex';
+  document.getElementById('cePage').style.display='block';
+  document.getElementById('navRole').textContent='👩‍🏫 教师';
+  document.getElementById('navRole').className='nav-role teacher';
+  document.getElementById('navLogout').style.display = (currentUser&&currentUser.role==='teacher')?'inline':'none';
+  ceEditPhase = 0;
+  document.querySelectorAll('.ce-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  initCEEditData();
+  renderCEPhase(0);
+}
+function initCEEditData(){
+  ceEditData = JSON.parse(JSON.stringify(getPhaseData(ceEditPhase)));
+}
+function ceSelectPhase(idx, el){
+  ceEditPhase = idx;
+  document.querySelectorAll('.ce-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  initCEEditData();
+  renderCEPhase(idx);
+}
+function renderCEPhase(idx){
+  const d = ceEditData;
+  document.getElementById('cePhaseTitle').textContent = d.name;
+  const container = document.getElementById('ceDaysContainer');
+  let html = '';
+  d.days.forEach((day, di)=>{
+    html += '<div class="ce-day-block"><div class="ce-day-hd"><span class="ce-day-num">'+day.num+'</span>';
+    html += '<input value="'+escHtml(day.date)+'" data-day="'+di+'" data-field="date" placeholder="日期，如 7月6日 周日" style="flex:1">';
+    html += '<input value="'+escHtml(day.topic)+'" data-day="'+di+'" data-field="topic" placeholder="当日主题，如 大模型硬件部署" style="flex:2">';
+    html += '<button class="btn ghost sm" onclick="ceRemoveDay('+di+')" style="color:var(--red);">✕ 删除</button>';
+    html += '</div>';
+    day.sessions.forEach((s, si)=>{
+      html += '<div class="ce-session"><div class="ce-sess-row">';
+      html += '<select data-day="'+di+'" data-sess="'+si+'" data-field="type"><option value="lecture"'+(s.type==='lecture'?' selected':'')+'>讲授+实操</option><option value="hands-on"'+(s.type==='hands-on'?' selected':'')+'>动手实践</option><option value="qa"'+(s.type==='qa'?' selected':'')+'>辅导答疑</option></select>';
+      html += '<input value="'+escHtml(s.time)+'" data-day="'+di+'" data-sess="'+si+'" data-field="time" placeholder="时间，如 09:00-12:00" class="w25">';
+      html += '<input value="'+escHtml(s.dur)+'" data-day="'+di+'" data-sess="'+si+'" data-field="dur" placeholder="时长，如 3小时" class="w15">';
+      html += '<button class="btn ghost sm" onclick="ceRemoveSession('+di+','+si+')" style="color:var(--red);">✕</button>';
+      html += '</div><div class="ce-sess-row">';
+      html += '<input value="'+escHtml(s.title)+'" data-day="'+di+'" data-sess="'+si+'" data-field="title" placeholder="课程标题" class="w40">';
+      html += '<input value="'+escHtml(s.topic)+'" data-day="'+di+'" data-sess="'+si+'" data-field="topic" placeholder="内容简述" class="w30">';
+      html += '<input value="'+(s.id||'')+'" data-day="'+di+'" data-sess="'+si+'" data-field="id" placeholder="Session ID" class="w25">';
+      html += '</div><div class="ce-sess-row">';
+      html += '<input value="'+escHtml((s.tags||[]).join(', '))+'" data-day="'+di+'" data-sess="'+si+'" data-field="tags" placeholder="标签，逗号分隔" class="w40">';
+      html += '<input value="'+(s.demoUrl||'')+'" data-day="'+di+'" data-sess="'+si+'" data-field="demoUrl" placeholder="Demo视频/网页链接 URL" class="w30">';
+      html += '</div></div>';
+    });
+    html += '<div style="margin-bottom:8px;"><button class="btn ghost sm" onclick="ceAddSession('+di+')">➕ 添加课时</button></div>';
+    html += '</div>';
+  });
+  container.innerHTML = html || '<p style="color:var(--text2);padding:20px;">暂无课程安排，点击下方"添加一天"开始。</p>';
+  ceUpdatePreview();
+}
+function ceAddDay(){
+  const d = ceEditData;
+  const newNum = d.days.length + 1;
+  d.days.push({ num: newNum, date: '', topic: '', sessions: [] });
+  renderCEPhase(ceEditPhase);
+}
+function ceRemoveDay(di){
+  if(!confirm('确定删除第 '+(di+1)+' 天及其全部课时？')) return;
+  ceEditData.days.splice(di, 1);
+  renderCEPhase(ceEditPhase);
+}
+function ceAddSession(di){
+  ceEditData.days[di].sessions.push({ type:'lecture', time:'', dur:'', title:'', topic:'', id:'', tags:[], demoUrl:'' });
+  renderCEPhase(ceEditPhase);
+}
+function ceRemoveSession(di, si){
+  ceEditData.days[di].sessions.splice(si, 1);
+  renderCEPhase(ceEditPhase);
+}
+function ceCollectFormData(){
+  // read all inputs back into ceEditData
+  document.querySelectorAll('#ceDaysContainer input, #ceDaysContainer select').forEach(el=>{
+    const di = parseInt(el.dataset.day);
+    const si = el.dataset.sess ? parseInt(el.dataset.sess) : null;
+    const field = el.dataset.field;
+    const val = el.value;
+    if(si !== null){
+      if(field === 'tags') ceEditData.days[di].sessions[si][field] = val.split(',').map(s=>s.trim()).filter(Boolean);
+      else ceEditData.days[di].sessions[si][field] = val;
+    } else {
+      if(field==='num') ceEditData.days[di][field] = parseInt(val)||(di+1);
+      else ceEditData.days[di][field] = val;
+    }
+  });
+  // update day nums
+  ceEditData.days.forEach((d,i)=>d.num = i+1);
+}
+function ceSaveAll(){
+  ceCollectFormData();
+  const all = getCourseData() || JSON.parse(JSON.stringify(calPhaseData));
+  all[ceEditPhase] = JSON.parse(JSON.stringify(ceEditData));
+  saveCourseDataToStore(all);
+  alert('✅ 保存成功！学生端日历已更新。');
+  ceUpdatePreview();
+  // refresh current calendar if visible
+  if(document.getElementById('calendarPage').style.display !== 'none') renderCalendar(calPhaseIdx);
+}
+function ceResetAll(){
+  if(!confirm('确定恢复 Phase '+(ceEditPhase+1)+' 为默认内容？所有修改将丢失。')) return;
+  const all = getCourseData();
+  if(all){ all[ceEditPhase] = null; saveCourseDataToStore(all); }
+  initCEEditData();
+  renderCEPhase(ceEditPhase);
+}
+function ceUpdatePreview(){
+  ceCollectFormData();
+  const d = ceEditData;
+  let html = '<div style="font-size:12px;color:var(--text2);margin-bottom:8px;">'+d.name+'</div>';
+  d.days.forEach(day=>{
+    html += '<div style="margin-bottom:12px;padding:10px;background:#fafbfc;border-radius:8px;">';
+    html += '<b>Day '+day.num+'</b> · '+escHtml(day.date)+' · '+escHtml(day.topic);
+    day.sessions.forEach(s=>{
+      const typeLabel = s.type==='qa'?'答疑':s.type==='lecture'?'讲授':'实践';
+      html += '<div style="margin-left:16px;font-size:12px;padding:4px 0;">';
+      html += '<span style="background:#eef;border-radius:4px;padding:1px 6px;font-size:10px;">'+typeLabel+'</span> ';
+      html += s.time+' '+escHtml(s.title)+' '+(s.demoUrl?'🔗':'');
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('cePreviewContent').innerHTML = html || '<span style="color:var(--text2);">暂无内容</span>';
+}
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+let calPhaseIdx = 0;
+
+function renderCalendar(idx){
+  calPhaseIdx = idx;
+  const d = getPhaseData(idx);
+  const main = document.getElementById('calMainContent');
+  const chip = document.querySelector('.cal-main .phase-chip');
+  if(chip)chip.textContent = d.name+' · '+d.sub;
+  document.getElementById('navTitle').textContent = d.name;
+
+  let html = '';
+  d.days.forEach(day=>{
+    html+=`<div class="day-group">
+      <div class="day-head"><span class="day-num">${day.num}</span><div class="day-info"><div class="date">${day.date}</div><div class="weekday">${day.topic}</div></div></div>`;
+    day.sessions.forEach((s,i)=>{
+      const typeClass = s.type==='qa'?'qa':s.type==='lecture'?'lecture':'hands-on';
+      const typeLabel = s.type==='qa'?'辅导答疑':s.type==='lecture'?'讲授+实操':'动手实践';
+      const isLast = i===day.sessions.length-1;
+      const isCur = s.id===currentSession;
+      html+=`<div class="session-card ${typeClass}${isCur?' current':''}${isLast?' last':''}" onclick="openMode('${s.id||'day'+day.num+'-'+(i+1)}')">
+        <div class="s-time"><span class="range">${s.time}</span><div class="dur">${s.dur}</div></div>
+        <div class="s-type ${typeClass}">${typeLabel}</div>
+        <div class="s-content"><h4>${s.title}</h4><div class="topic">${s.topic}</div>
+          <div class="s-meta">${s.tags.map(t=>'<span class="meta-tag">'+t+'</span>').join('')}${s.demoUrl?` <span class="meta-tag demo-tag" onclick="event.stopPropagation();window.open('${s.demoUrl}','_blank')">🎬 Demo</span>`:''}</div>
+        </div><span class="s-arrow">→</span>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  main.innerHTML = html;
+}
+
+function switchPhaseTab(el,idx){
+  document.querySelectorAll('.cal-phase-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderCalendar(idx);
+  el.style.transform='scale(1.05)';setTimeout(()=>{el.style.transform='';},150);
+}
+
+// ═══════════════════ Calendar Phase Data ═══════════════════
+const calPhaseData = [
+  // Phase 01
+  {name:'Phase 01 · 国产AI技术基础', sub:'5.5天 · AI Agent + 龙虾3D模型',
+   days:[
+     {num:1, date:'7月6日 周日', topic:'大模型硬件部署 & 龙虾固件',
+      sessions:[
+        {type:'lecture',time:'09:00-12:00',dur:'3小时',title:'大模型在硬件上的部署方式',topic:'边缘AI概念 · ESP32-S3入门 · AI辅助搭建开发环境',tags:['🤖 AI协作','📦 开发环境','⚡ 入门'],id:'day1-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'"龙虾"固件刷写与基础联调',topic:'固件刷写实战 · AI辅助生成指令 · 基础功能测试',tags:['🔧 固件','📦 龙虾固件','⚡ 动手'],id:'day1-pm'},
+        {type:'qa',time:'16:30-17:30',dur:'1小时',title:'辅导答疑 / 问题排查',topic:'AI辅助诊断刷写问题、固件功能问题',tags:['❓ 答疑','🔍 排查'],id:'day1-qa'}
+      ]},
+     {num:2, date:'7月7日 周一', topic:'云边协同',
+      sessions:[
+        {type:'hands-on',time:'09:00-12:00',dur:'3小时',title:'国产小板调用本地大模型',topic:'ESP32-S3↔本地大模型通信 · 云边协同闭环 · AI辅助联调',tags:['☁️ 云边协同','🔗 HTTP','📡 WiFi'],id:'day2-am'}
+      ]}
+   ]},
+  // Phase 02
+  {name:'Phase 02 · 新型硬件设计', sub:'4天 · 3D打印件 + CNC样品 + Arduino Demo',
+   days:[
+     {num:3, date:'7月13日 周日', topic:'3D建模与打印入门',
+      sessions:[
+        {type:'lecture',time:'09:00-12:00',dur:'3小时',title:'CadQuery参数化建模',topic:'Python生成3D模型 · 参数化设计 · AI辅助模型生成',tags:['🐍 Python','🔧 CadQuery','🤖 AI辅助'],id:'p2d3-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'3D打印与后处理',topic:'切片设置 · 打印实操 · 支撑去除 · 表面处理',tags:['🖨 3D打印','✂️ 后处理'],id:'p2d3-pm'}
+      ]},
+     {num:4, date:'7月14日 周一', topic:'CNC与Arduino联调',
+      sessions:[
+        {type:'hands-on',time:'09:00-12:00',dur:'3小时',title:'CNC雕刻实物样品',topic:'CNC操作 · 材料选择 · 雕刻参数',tags:['⚙️ CNC','🪵 材料'],id:'p2d4-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'Arduino功能联调Demo',topic:'电机控制 · 传感器读取 · 联调测试',tags:['🔌 Arduino','🔗 联调'],id:'p2d4-pm'}
+      ]}
+   ]},
+  // Phase 03
+  {name:'Phase 03 · 环境感知', sub:'6天 · 传感器 + 声音控制灯 + Edge Impulse',
+   days:[
+     {num:5, date:'7月20日 周日', topic:'多传感器数据采集',
+      sessions:[
+        {type:'lecture',time:'09:00-12:00',dur:'3小时',title:'传感器类型与数据协议',topic:'DHT11 · MPU6050 · I2C/SPI协议 · AI辅助理解datasheet',tags:['📡 传感器','📖 协议','🤖 AI辅助'],id:'p3d5-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'多传感器数据采集实操',topic:'接线 · 驱动安装 · 数据读取 · 实时可视化',tags:['🔌 接线','📊 可视化'],id:'p3d5-pm'}
+      ]},
+     {num:6, date:'7月21日 周一', topic:'Edge Impulse模型训练',
+      sessions:[
+        {type:'lecture',time:'09:00-12:00',dur:'3小时',title:'Edge Impulse平台入门',topic:'数据采集→训练→部署全流程 · 特征工程 · 模型选型',tags:['🧠 EdgeImpulse','📈 训练'],id:'p3d6-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'声音分类模型训练与部署',topic:'声音数据采集 · 模型训练 · 部署到ESP32-S3',tags:['🔊 声音','🚀 部署'],id:'p3d6-pm'}
+      ]}
+   ]},
+  // Phase 04
+  {name:'Phase 04 · 触觉反馈集成', sub:'4天 · 触摸菜单 + 智能灯带 + 智能小车',
+   days:[
+     {num:7, date:'7月26日 周六', topic:'触摸交互与灯带控制',
+      sessions:[
+        {type:'lecture',time:'09:00-12:00',dur:'3小时',title:'触摸传感器与反馈设计',topic:'TTP223触摸 · WS2812B灯带 · 交互逻辑设计',tags:['🖐 触摸','💡 灯带'],id:'p4d7-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'触摸菜单控制灯带',topic:'AI辅助UI代码生成 · 灯效编程 · 联调测试',tags:['🤖 AI辅助','🎨 灯效'],id:'p4d7-pm'}
+      ]},
+     {num:8, date:'7月27日 周日', topic:'智能小车组装',
+      sessions:[
+        {type:'hands-on',time:'09:00-12:00',dur:'3小时',title:'小车底盘组装与电机调试',topic:'L298N驱动 · 底盘组装 · 基本运动控制',tags:['🚗 小车','🔧 组装'],id:'p4d8-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'防碰撞小车系统联调',topic:'超声波测距 · 避障逻辑 · 触觉+视觉反馈整合',tags:['📏 超声波','🛡️ 避障'],id:'p4d8-pm'}
+      ]}
+   ]},
+  // Phase 05
+  {name:'Phase 05 · 具身智能控制', sub:'4天 · 完整AI机器人 + 路演',
+   days:[
+     {num:9, date:'8月2日 周六', topic:'AI机器人系统集成',
+      sessions:[
+        {type:'lecture',time:'09:00-12:00',dur:'3小时',title:'具身智能架构总览',topic:'多传感器融合 · 云边协同 · 语音/视觉交互 · 系统设计',tags:['🤖 具身智能','🏗 架构'],id:'p5d9-am'},
+        {type:'hands-on',time:'13:30-16:30',dur:'3小时',title:'完整AI机器人组装',topic:'集成主板 · 传感器矩阵 · 机械臂/底盘 · 电池管理',tags:['🔧 集成','🔋 电源'],id:'p5d9-pm'}
+      ]},
+     {num:10, date:'8月3日 周日', topic:'路演准备与展示',
+      sessions:[
+        {type:'hands-on',time:'09:00-12:00',dur:'3小时',title:'多模块联调与优化',topic:'全系统测试 · Bug修复 · 性能优化 · 演示脚本',tags:['🧪 测试','⚡ 优化'],id:'p5d10-am'},
+        {type:'qa',time:'13:30-16:30',dur:'3小时',title:'团队路演 & 成果展示',topic:'各组展示完整AI机器人 · 评委打分 · 总结',tags:['🎤 路演','🏆 展示'],id:'p5d10-pm'}
+      ]}
+   ]}
+];
+function goER(){hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('erPage').style.display='block';document.getElementById('floatBall').style.display='flex';}
+function goPath(){hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('pathPage').style.display='block';document.getElementById('floatBall').style.display='flex';}
+function goFAQ(){hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('faqPage').style.display='block';document.getElementById('floatBall').style.display='flex';renderFAQ('all');}
+function goDoc(){hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('docPage').style.display='block';document.getElementById('floatBall').style.display='flex';}
+function goNotes(){hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('notesPage').style.display='block';document.getElementById('floatBall').style.display='flex';renderNotes();}
+
+function enterAs(role){
+  if(role==='teacher'){
+    hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('teacherPage').style.display='block';
+    document.getElementById('floatBall').style.display='none';
+    document.getElementById('navRole').textContent='📊 教师';document.getElementById('navRole').className='nav-role teacher';
+    document.getElementById('navLogout').style.display = (currentUser&&currentUser.role==='teacher')?'inline':'none';
+    updateAlertBadges();
+    renderTeacherAlerts();
+  }else{goCalendar();}
+}
+function showPathDetail(phaseId){
+  const details={
+    'p1':{icon:'🧠',title:'Phase 01 · 国产AI技术基础',days:'5.5天',status:'已完成 ✅',
+      desc:'理解边缘AI与大模型部署概念，掌握ESP32-S3开发环境搭建与龙虾固件刷写，实现云边协同通信闭环。',
+      hw:['ESP32-S3 DevKitC','USB数据线(务必数据线)','CH343串口驱动'],
+      sw:['Arduino IDE 2.x','ESP32 Arduino Core 3.0+','esptool.py','Ollama / vLLM 本地部署'],
+      ai:['AI Agent引导开发环境搭建','AI辅助固件刷写指令生成','AI辅助云边协同代码编写'],
+      produce:['搭建ESP32-S3开发环境','龙虾固件刷入成功并基础交互','ESP32-S3调用本地大模型实现智能交互']},
+    'p2':{icon:'🔧',title:'Phase 02 · 新型硬件设计',days:'4天',status:'进行中 🟡',
+      desc:'学习CadQuery/Python生成3D模型，3D打印与CNC加工实物，完成Arduino功能联调Demo。',
+      hw:['3D打印机','CNC雕刻机','Arduino板','步进电机/传感器'],
+      sw:['CadQuery Python库','Cura / PrusaSlicer','FreeCAD','Arduino IDE'],
+      ai:['AI辅助生成3D模型代码','AI设计建议与参数优化','AI辅助Arduino程序联调'],
+      produce:['3D打印实物件','CNC雕刻样品','Arduino功能联调Demo']},
+    'p3':{icon:'👁️',title:'Phase 03 · 环境感知',days:'6天',status:'未开始 🔵',
+      desc:'学习多类型传感器数据采集与处理，通过Edge Impulse训练本地AI模型实现智能感知。',
+      hw:['DHT11温湿度','MPU6050陀螺仪','声音传感器','光照传感器'],
+      sw:['Edge Impulse Studio','传感器驱动库','数据预处理脚本','本地模型推理引擎'],
+      ai:['AI辅助理解传感器datasheet','AI辅助传感器数据特征提取','Edge Impulse模型训练指导'],
+      produce:['多种传感器数据采集成功','Edge Impulse训练模型部署到ESP32','声音控制智能灯']},
+    'p4':{icon:'🖐',title:'Phase 04 · 触觉反馈集成',days:'4天',status:'未开始 🔵',
+      desc:'集成触摸传感器与视觉检测反馈，制作智能灯带与防碰撞小车系统。',
+      hw:['触摸传感器TTP223','WS2812B灯带','L298N电机驱动','小车底盘'],
+      sw:['FastLED/NeoPixel库','触摸事件处理','电机控制库','视觉反馈系统'],
+      ai:['AI辅助触摸菜单UI设计','AI生成灯光效果代码','AI辅助小车防碰撞逻辑'],
+      produce:['触摸菜单控制灯带','智能防碰撞小车','触觉+视觉反馈Demo']},
+    'p5':{icon:'🤖',title:'Phase 05 · 具身智能控制',days:'4天',status:'未开始 🔵',
+      desc:'整合前四阶段能力，打造完整AI机器人系统，进行团队路演与成果展示。',
+      hw:['集成主板+各传感器','机器人底盘/机械臂','显示屏/扬声器','电池管理系统'],
+      sw:['全栈控制系统','多传感器融合算法','语音/视觉交互','路演演示系统'],
+      ai:['AI辅助系统架构设计','AI辅助多模块联调','AI辅助路演PPT/演示视频'],
+      produce:['完整AI机器人系统','团队路演演示','实验总结报告']}
+  };
+  const d=details[phaseId];
+  document.getElementById('pathDetailIcon').textContent=d.icon;
+  document.getElementById('pathDetailTitle').textContent=d.title;
+  document.getElementById('pathDetailBody').innerHTML=`
+    <div class="pd-section"><span style="color:var(--blue);font-weight:600;">${d.days}</span> · ${d.status}</div>
+    <div class="pd-section"><h6>📖 概述</h6><p>${d.desc}</p></div>
+    <div class="pd-section"><h6>🔧 硬件</h6><div>${d.hw.map(h=>'<span class="pd-tag hw">'+h+'</span>').join('')}</div></div>
+    <div class="pd-section"><h6>💻 软件</h6><div>${d.sw.map(s=>'<span class="pd-tag sw">'+s+'</span>').join('')}</div></div>
+    <div class="pd-section"><h6>🤖 AI协作</h6><div>${d.ai.map(a=>'<span class="pd-tag ai">'+a+'</span>').join('')}</div></div>
+    <div class="pd-section"><h6>📦 产出物</h6><ul>${d.produce.map(p=>'<li>'+p+'</li>').join('')}</ul></div>`;
+  document.getElementById('pathDetailModal').classList.add('open');
+}
+
+// ═══════════════════ Mode Selection ═══════════════════
+function getSessionById(sessionId){
+  let s=sessions[sessionId];
+  if(!s){
+    for(let p=0;p<5;p++){
+      const pd=getPhaseData(p);
+      for(const day of pd.days){
+        for(const sess of day.sessions){
+          if(sess.id===sessionId){
+            s={title:sess.title,chip:'morning',chipLabel:sess.time+' · '+sess.dur,meta:sess.topic||sess.title,time:sess.time,guideSteps:[]};break;
+          }
+        }
+        if(s)break;
+      }
+      if(s)break;
+    }
+  }
+  if(!s){s={title:sessionId.replace(/^day(\d+)-(\d+)/,'Day$1 课时$2'),chip:'morning',chipLabel:'课时内容',meta:'教师已录入 · 引导步骤待补充',time:'待定',guideSteps:[]};}
+  return s;
+}
+
+function openMode(sessionId){
+  currentSession=sessionId;
+  const s=getSessionById(sessionId);
+  document.getElementById('modeChip').textContent=s.chipLabel||'课时';
+  document.getElementById('modeChip').className='chip '+(s.chip||'morning');
+  document.getElementById('modeTitle').textContent=s.title;
+  document.getElementById('modeMeta').textContent=s.meta||'';
+  hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('modePage').style.display='block';
+  document.getElementById('floatBall').style.display='flex';
+}
+
+function startContent(mode){
+  contentMode=mode;
+  const s=getSessionById(currentSession);
+  const main=document.getElementById('contentMain');
+  const isGuide=mode==='guide';
+  let html=`<span class="back" onclick="openMode('${currentSession}')">← 返回选择</span>
+    <span class="page-chip ${isGuide?'guide-chip':'solo-chip'}">${isGuide?'🖐 引导模式':'✋ 自主模式'}</span>
+    <h2>${s.title}</h2><div class="info-bar"><span>${s.time}</span><span>${s.meta}</span></div>`;
+
+  if(isGuide){
+    guideStepIdx=0;
+    const total=s.guideSteps.length;
+    html+=`<div class="guide-progress" id="guideProgress">
+      <span style="font-size:13px;">📋</span>
+      <div class="gp-bar"><div class="gp-fill" id="gpFill" style="width:0%"></div></div>
+      <span class="gp-text" id="gpText">0/${total}</span>
+    </div>`;
+    s.guideSteps.forEach((step,i)=>{
+      let whyHTML='';
+      if(step.whyQ){
+        whyHTML=`<div class="why-confirm" id="why${i}"><div class="wc-q">🤔 理解确认：${step.whyQ}</div><textarea class="wc-input" id="wcInput${i}" placeholder="用你自己的话回答…" rows="2"></textarea><button class="wc-submit" onclick="submitWhy(${i})">提交</button></div>`;
+      }
+      html+=`<div class="t-step${i===0?' active-step':''}" id="step${i}">
+        <div class="step-hd" onclick="completeStep(${i})"><span class="step-num">${i+1}</span><h4>${step.title}</h4><span class="step-check" onclick="event.stopPropagation();completeStep(${i})"></span></div>
+        <div class="step-bd">${step.body}${whyHTML}</div></div>`;
+    });
+    html+=`<button class="btn primary" style="width:100%;margin-top:8px;padding:15px;font-size:15px;" id="btnNextStep" onclick="nextStep()">下一步 →</button>
+    <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #f0f0f3;">
+      <button class="btn danger" style="padding:14px 32px;font-size:14px;" onclick="openSafetyChecklist()">⚠️ 通电前安全检查清单 (7项)</button>
+    </div>`;
+  }else{
+    html+=`<div class="mat-grid">
+      <div class="mat-card" onclick="this.classList.toggle('mat-done')"><div class="mat-ico">📋</div><h4>实验报告</h4><p>目标·要求·评分标准</p></div>
+      <div class="mat-card" onclick="this.classList.toggle('mat-done')"><div class="mat-ico">🖼</div><h4>接线图</h4><p>高清大图+引脚对照表</p></div>
+      <div class="mat-card" onclick="this.classList.toggle('mat-done')"><div class="mat-ico">📝</div><h4>代码模板</h4><p>框架代码·关键部分留空</p></div>
+      <div class="mat-card" onclick="this.classList.toggle('mat-done')"><div class="mat-ico">📦</div><h4>物料清单</h4><p>ESP32-S3·所需传感器·杜邦线</p></div></div>
+      <button class="btn primary" style="width:100%;padding:15px;font-size:15px;background:var(--green);" onclick="startSoloExperiment()">开始实验 🚀</button>
+      <div style="text-align:center;margin-top:24px;">
+        <button class="btn danger" style="padding:14px 32px;font-size:14px;" onclick="openSafetyChecklist()">⚠️ 通电前安全检查清单 (7项)</button>
+      </div>`;
+  }
+  main.innerHTML=html;
+  hideAll();document.getElementById('appNav').style.display='flex';document.getElementById('contentPage').style.display='block';
+  document.getElementById('floatBall').style.display='flex';
+  document.getElementById('navTitle').textContent=s.title;
+  updateFloatCtx();
+}
+
+function nextStep(){
+  const cur=getSessionById(currentSession);if(!cur)return;
+  const max=cur.guideSteps.length;
+  if(guideStepIdx>=max-1)return;
+  // Mark current step as complete
+  const curStep=document.getElementById('step'+guideStepIdx);
+  if(curStep){curStep.classList.add('completed');curStep.classList.remove('active-step');}
+  guideStepIdx++;
+  const el=document.getElementById('step'+guideStepIdx);
+  if(el){el.classList.add('active-step');el.scrollIntoView({behavior:'smooth',block:'center'});}
+  updateGuideProgress();
+  // Update next button text on last step
+  if(guideStepIdx>=max-1){
+    const btn=document.getElementById('btnNextStep');
+    if(btn)btn.textContent='✅ 完成全部步骤';
+  }
+}
+
+function completeStep(idx){
+  const el=document.getElementById('step'+idx);
+  if(!el)return;
+  const wasCompleted=el.classList.contains('completed');
+  el.classList.toggle('completed');
+  if(!wasCompleted && idx===guideStepIdx && guideStepIdx<getSessionById(currentSession).guideSteps.length-1){
+    setTimeout(()=>nextStep(),400);
+  }
+  updateGuideProgress();
+}
+
+function updateGuideProgress(){
+  const total=getSessionById(currentSession).guideSteps.length;
+  const completed=document.querySelectorAll('#contentMain .t-step.completed').length;
+  const fill=document.getElementById('gpFill');
+  const text=document.getElementById('gpText');
+  if(fill)fill.style.width=(completed/total*100)+'%';
+  if(text)text.textContent=completed+'/'+total;
+}
+
+function startSoloExperiment(){
+  const msgs=document.getElementById('panelMsgs');
+  msgs.innerHTML+=`<div class="mr agt"><div class="av">🤖</div><div class="msg-wrap"><div class="mb">🚀 自主模式已启动！材料都在上面，按自己的节奏动手。<br><br>卡住随时叫我——描述现象+报错，帮你定位。</div></div></div>`;
+  document.getElementById('floatPanel').classList.add('open');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function submitWhy(idx){
+  const input=document.getElementById('wcInput'+idx);
+  if(!input.value.trim()){alert('请先写下你的理解再提交。');return;}
+  const whyBlock=document.getElementById('why'+idx);
+  whyBlock.innerHTML=`<div style="color:var(--green);font-weight:600;font-size:14px;">✅ 已记录你的理解 — 继续下一步！</div>`;
+  // Mark step complete
+  const step=document.getElementById('step'+idx);
+  if(step)step.classList.add('completed');
+  updateGuideProgress();
+  // Auto advance
+  setTimeout(()=>{nextStep();},800);
+}
+
+// ═══════════════════ Floating Panel ═══════════════════
+let pendingImages=[];
+function updateFloatCtx(){
+  const msgs=document.getElementById('panelMsgs');
+  const chips=document.getElementById('quickChips');
+  const hints={
+    'day1-am':'当前：大模型硬件部署 & ESP32-S3 入门<br>概念不理解？直接问我。',
+    'day1-pm':'当前：龙虾固件刷写<br>刷写命令不会写？报错看不懂？终端输出贴给我。',
+    'day1-qa':'当前：辅导答疑<br>今天的所有问题——现象+报错告诉我，帮你排查。',
+    'day2-am':'当前：云边协同<br>HTTP通信、JSON解析、WiFi连接——卡在哪步了？',
+  };
+  const h=hints[currentSession]||'👋 卡住了随时问我。';
+  msgs.innerHTML=`<div class="time-divider">今天</div><div class="mr auto"><div class="av"></div><div class="msg-wrap"><div class="mb">${h}</div></div></div>`;
+  // Context-aware chips
+  const chipSets={
+    'day1-am':['边缘AI vs 云端AI','ESP32-S3有哪些部件','开发环境怎么装','串口安装不上'],
+    'day1-pm':['生成刷写命令','刷写失败怎么办','BOOT怎么按','固件刷完怎么验证'],
+    'day1-qa':['串口识别不到','选哪个COM口','刷写报错怎么办','刷完没反应'],
+    'day2-am':['HTTP返回-1','怎么查电脑IP','JSON解析失败','防火墙怎么关']
+  };
+  const cs=chipSets[currentSession]||['串口识别不到怎么办','接线这样对不对','这个报错什么意思','帮我解释这段文档'];
+  chips.innerHTML=cs.map(c=>`<button class="chip-btn" onclick="quickAsk('${c}')">${c}</button>`).join('');
+  chatCtx={count:0,lastTopic:'',erTree:null,erStep:0};
+  pendingImages=[];document.getElementById('imgPreview').style.display='none';updateSendBtn();
+}
+
+function toggleFloat(){document.getElementById('floatPanel').classList.toggle('open');}
+function clearChat(){
+  document.getElementById('panelMsgs').innerHTML='<div class="time-divider">今天</div>';
+  document.getElementById('imgPreview').style.display='none';
+  pendingImages=[];updateSendBtn();
+}
+
+function handleImageUpload(input){
+  const files=input.files;
+  for(let f of files){
+    if(!f.type.startsWith('image/'))continue;
+    const reader=new FileReader();
+    reader.onload=function(e){pendingImages.push({dataURL:e.target.result,name:f.name});renderImagePreviews();};
+    reader.readAsDataURL(f);
+  }
+  input.value='';
+}
+
+function renderImagePreviews(){
+  const container=document.getElementById('imgPreview');
+  container.innerHTML=pendingImages.map((img,i)=>`<div class="preview-item"><img src="${img.dataURL}" alt="预览"><button class="remove" onclick="removeImage(${i})">×</button></div>`).join('');
+  container.style.display=pendingImages.length?'flex':'none';
+  updateSendBtn();
+}
+function removeImage(i){pendingImages.splice(i,1);renderImagePreviews();}
+function updateSendBtn(){
+  const hasText=document.getElementById('msgInput').value.trim().length>0;
+  const hasImage=pendingImages.length>0;
+  document.getElementById('sendBtn').disabled=!hasText&&!hasImage;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const input=document.getElementById('msgInput');
+  if(input)input.addEventListener('input',updateSendBtn);
+});
+function quickAsk(text){
+  document.getElementById('msgInput').value=text;
+  updateSendBtn();
+  document.getElementById('floatPanel').classList.add('open');
+  document.getElementById('msgInput').focus();
+}
+
+function send(){
+  const input=document.getElementById('msgInput');
+  const text=input.value.trim();
+  const hasImages=pendingImages.length>0;
+  if(!text&&!hasImages)return;
+  const msgs=document.getElementById('panelMsgs');
+  const timeStr=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+
+  let userHTML=`<div class="mr usr"><div class="av">👤</div><div class="msg-wrap">`;
+  if(hasImages){pendingImages.forEach(img=>{userHTML+=`<div class="img-msg"><img src="${img.dataURL}" alt="上传图片"></div>`;});}
+  if(text)userHTML+=`<div class="mb">${text}</div>`;
+  userHTML+=`<span class="msg-time">${timeStr}</span></div></div>`;
+  msgs.innerHTML+=userHTML;
+  input.value='';input.style.height='auto';
+  pendingImages=[];document.getElementById('imgPreview').style.display='none';updateSendBtn();
+  msgs.scrollTop=msgs.scrollHeight;
+
+  const tid='ty_'+Date.now();
+  msgs.innerHTML+=`<div class="mr agt" id="${tid}"><div class="av">🤖</div><div class="msg-wrap"><div class="mb"><div class="typing"><span></span><span></span><span></span></div></div></div></div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+
+  setTimeout(()=>{
+    document.getElementById(tid)?.remove();
+    const reply=getAIReply(text);
+    msgs.innerHTML+=`<div class="mr agt"><div class="av">🤖</div><div class="msg-wrap"><div class="mb">${reply}</div><span class="msg-time">${new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}</span></div></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+  },600+Math.random()*500);
+}
+
+function getAIReply(text){
+  chatCtx.count++;
+  // Safety L3/L4
+  if(/冒烟|火花|烧焦|起火|短路|异响|烧了/.test(text)){
+    document.getElementById('safetyMsg').innerHTML='请<b>立即断开USB和电源</b>！<br><br>不要继续通电。检查是否有烧焦痕迹或异常发热。<br><br>找老师或助教现场确认后再操作。';
+    document.getElementById('safetyModal').classList.add('open');
+    emitAlert('L4', '冒烟/火花/烧焦', '学生消息触发L4关键词：「'+text.substring(0,60)+'」。请立即赶到学生工位！', currentUser?.name||'学生');
+    return '⚠️ <b>L4 紧急</b>：立即断电！不要继续操作。已通知老师。';
+  }
+  if(/发热|烫|过热|温度高|传感器.*热/.test(text)){
+    document.getElementById('safetyMsg').innerHTML='传感器异常发热可能存在硬件损坏风险。<br><br>1. 断开USB和外部电源<br>2. 不要继续通电测试<br>3. 检查VCC和GND是否接反<br>4. 确认供电电压是否超过模块额定值<br><br>找老师或助教现场确认。';
+    document.getElementById('safetyModal').classList.add('open');
+    emitAlert('L3', '模块异常发热', '学生消息触发L3关键词：「'+text.substring(0,60)+'」。建议前往工位检查。', currentUser?.name||'学生');
+    return '⚠️ <b>L3 发热告警</b>：请先停止操作并断开电源。已通知老师。';
+  }
+  // ER tree active
+  if(chatCtx.erTree){
+    return erTreeFlow(text);
+  }
+  const t=text.toLowerCase();
+  if(/串口|com|驱动|识别不到|ch343/i.test(t)){
+    if(chatCtx.lastTopic==='serial')return '刚才你说串口还是不行——<b>换过USB线了吗？</b><br><br>这是最高频原因：很多线只能充电不能传数据。先换一根确认。<br><br>换了还是不行？那我来按顺序帮你排：<br><br>①什么操作系统？（Win/Mac/Linux）<br>②设备管理器有没有黄色感叹号？<br>③板子上电后电源灯亮吗？';
+    chatCtx.lastTopic='serial';return '串口识别不到，按顺序：<br><br>①<b>USB线支持数据传输吗？</b>（很多只能充电）<br>②换一个USB口试试<br>③Win需装CH343驱动<br>④设备管理器有新设备吗？<br><br>你用的什么操作系统？';
+  }
+  if(/刷写|烧录|flash|esptool|bin/.test(t)){
+    if(/失败|报错|不行/i.test(t))return '刷写失败最常见：<br><br>①<b>BOOT没按对</b>→按住BOOT→按RESET→松BOOT→再刷<br>②<b>串口被占用</b>→关掉监视器<br>③<b>文件路径不对</b>→确认.bin在命令执行的目录<br><br>终端报错贴给我。';
+    chatCtx.lastTopic='flash';return '刷写步骤：<br><br>①拿到.bin固件<br>②终端cd到固件目录<br>③执行刷写命令（告诉我串口号和固件名，帮你拼命令）<br><br>需要我生成刷写命令吗？';
+  }
+  if(/http|wifi|联网|连接|request|返回|api|局域网|ip/i.test(t)){
+    if(/返回.*-1|failed|不通/i.test(t)){chatCtx.lastTopic='http';return 'HTTP返回-1=ESP32连不上服务器：<br><br>①<b>防火墙拦截</b>→先关Windows防火墙试<br>②<b>IP变了</b>→重新ipconfig确认<br>③<b>同一个WiFi吗？</b><br><br>关了防火墙试试，能通就是防火墙规则。';}
+    chatCtx.lastTopic='http';return 'ESP32↔大模型通信要点：<br><br>①确认电脑IP：ipconfig（Win）/ ifconfig（Mac）<br>②代码里填对IP和端口（Ollama默认11434）<br>③防火墙放行端口<br>④同WiFi<br><br>卡哪步？';
+  }
+  if(/json|解析|parse/i.test(t))return 'JSON解析失败→先打印原始响应：<br><br>①解析前加Serial.println(response)<br>②看返回是不是完整JSON<br>③可能有HTTP header→找{开头<br><br>原始响应贴给我。';
+  if(/什么是|边缘|部署|区别/i.test(t))return '简单说：<br><br>·<b>云端AI</b>→数据上传→推理→返回。慢、要网、有隐私问题<br>·<b>边缘AI</b>→模型跑本地硬件。快、离线可用<br>·<b>云边协同</b>→简单本地做，复杂云端做<br><br>今天你要做的就是让ESP32发请求给电脑上的大模型=云边协同。';
+  if(chatCtx.count>3)return '聊了几轮了——你现在具体卡在哪步？<br><br>不用管术语，用你自己的话说。也可以去<b>故障急诊室</b>（导航栏🚨）选一种现象快速进入排查。';
+  return '多给我一点细节：<br><br>·你卡在哪步？<br>·屏幕有什么报错？<br>·已经试过什么？<br><br>信息越多定位越快。<br><br>也可以去<b>故障急诊室</b>（导航栏🚨）选一种现象快速进入排查。';
+}
+
+// ═══════════════════ ER Decision Tree ═══════════════════
+const erTrees={
+  noPower:{q:'开发板完全没反应。请先确认：<br><br>① USB线接上了吗？<br>② 板子上<b>电源指示灯</b>亮吗？<br>③ 换过USB线和USB口吗？<br><br>请回复：<b>A.指示灯亮</b> / <b>B.指示灯不亮</b>',a:{'亮':'指示灯亮说明供电正常。下一步检查串口。去串口排查路径。','不亮':'电源灯不亮=板子没通电：<br><br>① 换一根USB线（确认是数据线）<br>② 换一个USB口<br>③ 换一台电脑试<br>④ 如果都不行，板子可能损坏→找老师换板'}},
+  noSerial:{q:'串口识别不到。请确认：<br><br>① 你用的<b>Windows / macOS / Linux</b>？<br>② USB线是数据线还是充电线？<br>③ 设备管理器有没有带<b>黄色感叹号</b>的未知设备？<br><br>请回复你的情况。',a:{}},
+  flashFail:{q:'烧录失败。请确认：<br><br>① 开发板型号选的是<b>ESP32S3 Dev Module</b>吗？<br>② 端口选对了吗？<br>③ 上传时<b>按住BOOT按钮</b>了吗？<br>④ <b>完整报错信息</b>是什么？<br><br>请回复你的情况。',a:{}},
+  noOutput:{q:'烧录成功但没有输出。请确认：<br><br>① 烧录完后按<b>RESET</b>按钮了吗？<br>② 串口监视器<b>波特率</b>是115200吗？<br>③ 代码里Serial.begin()波特率一致吗？<br><br>请回复你的情况。',a:{}},
+  noSensor:{q:'传感器没有数据。请提供：<br><br>① 传感器型号是什么？（如DHT11, MPU6050）<br>② VCC接的3.3V还是5V？<br>③ DATA接的哪个GPIO？<br>④ 代码里引脚号和实物一致吗？<br><br>请回复你的情况。',a:{}}
+};
+
+function startERTree(type){
+  chatCtx.erTree=type;
+  const msgs=document.getElementById('panelMsgs');
+  const tree=erTrees[type];
+  msgs.innerHTML+=`<div class="mr agt"><div class="av">🤖</div><div class="msg-wrap"><div class="mb">${tree.q}</div></div></div>`;
+  document.getElementById('floatPanel').classList.add('open');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function erTreeFlow(text){
+  const type=chatCtx.erTree;
+  const tree=erTrees[type];
+  const t=text.toLowerCase();
+  let reply='';
+
+  if(type==='noPower'){
+    if(/不亮|没亮|没有亮/i.test(t)){
+      reply='电源灯不亮=板子没通电：<br><br>① 换一根USB线（确认是数据线不是充电线）<br>② 换一个USB口试试<br>③ 换一台电脑试试<br>④ 如果都不行，板子可能损坏→<b>找老师换板</b><br><br>问题解决了吗？';
+    }else{reply='指示灯亮说明供电正常。<br><br>下一步：打开设备管理器→查看端口(COM和LPT)→有没有新串口出现？<br><br>如果没有，那串口识别不到→需要检查驱动和数据线。';}
+  }else if(type==='noSerial'){
+    if(/win|windows/i.test(t)){
+      reply='Windows系统：<br><br>① 打开设备管理器→查看"端口(COM和LPT)"<br>② 有没有黄色感叹号？<br>③ 没有→装CH343驱动<br>④ 有黄色感叹号→右键更新驱动<br><br>装完驱动重新插拔USB。好了吗？';
+    }else if(/mac|macos|苹果/i.test(t)){
+      reply='macOS系统：<br><br>① 打开终端→输入 ls /dev/cu.*<br>② 看到 /dev/cu.usbmodem* 就说明识别到了<br>③ 没看到→换USB线/换USB口/装驱动<br><br>识别到了吗？';
+    }else{reply='Linux系统：<br><br>① 终端输入 ls /dev/ttyUSB* 或 ls /dev/ttyACM*<br>② 看到设备就说明识别到了<br>③ 没看到→sudo dmesg | grep tty 看系统日志<br>④ 可能需要加用户到dialout组：sudo usermod -a -G dialout $USER';}
+  }else if(type==='flashFail'){
+    reply='烧录失败标准排查：<br><br>① 确认开发板选 <b>ESP32S3 Dev Module</b><br>② 确认端口选对COM口<br>③ <b>按住BOOT→点上传→出现Connecting…→松开BOOT</b><br>④ 如果还失败→把<b>完整报错贴给我</b><br><br>按这个顺序试一下？';
+  }else if(type==='noOutput'){
+    reply='烧录成功无输出：<br><br>① 按一下<b>RESET</b>按钮<br>② 打开串口监视器→右下角波特率选<b>115200</b><br>③ 代码里Serial.begin()的值也要是115200<br>④ 试一下Blink示例能跑吗？<br><br>能跑Blink说明板子和环境没问题→检查你自己的代码。';
+  }else if(type==='noSensor'){
+    reply='传感器排错按这个顺序：<br><br>① <b>供电</b>：VCC电压对吗？（3.3V还是5V？查datasheet）<br>② <b>GND</b>：共地了吗？<br>③ <b>GPIO</b>：代码里引脚和实物一致吗？<br>④ <b>代码</b>：库装了吗？I2C地址对吗？<br>⑤ <b>模块</b>：换一个传感器试试？<br><br>卡在哪一步？';
+  }
+  chatCtx.erTree=null; // reset after one round
+  return reply;
+}
+
+function triggerSafetyL3(){
+  document.getElementById('safetyMsg').innerHTML='⚠️ <b>模块发热/冒烟/异响</b> 属于 L3/L4 安全事件。<br><br><b>立即执行：</b><br>1. 断开 USB 和外部电源<br>2. 不要继续通电测试<br>3. 检查 VCC/GND 是否接反、是否短路<br>4. 找老师或助教现场确认<br><br><b>已同步通知老师。</b>';
+  document.getElementById('safetyModal').classList.add('open');
+  emitAlert('L4', '模块发热/冒烟/异响', '学生报告：模块发热/冒烟/异响。请立即赶到学生工位确认硬件状态。', currentUser?.name||'学生');
+}
+
+// ═══════════════════ Safety Checklist ═══════════════════
+// Click handler: toggle .sc-item checked state on click
+initChecklistHandlers();
+function initChecklistHandlers(){
+  const list = document.getElementById('safetyChecklist');
+  if(!list) return;
+  list.onclick = function(e){
+    const item = e.target.closest('.sc-item');
+    if(!item) return;
+    item.classList.toggle('checked');
+    const total = list.querySelectorAll('.sc-item').length;
+    const checked = list.querySelectorAll('.sc-item.checked').length;
+    const sumEl = document.getElementById('scSummary');
+    if(sumEl) sumEl.textContent = '\u5df2\u786e\u8ba4\uff1a'+checked+' / '+total;
+    const btn = document.getElementById('scConfirmBtn');
+    if(btn) btn.disabled = checked !== total;
+  };
+}
+function closeSafetyChecklist(){
+  document.getElementById('safetyCheckModal').classList.remove('open');
+  // reset
+  document.querySelectorAll('#safetyChecklist .sc-item').forEach(el=>el.classList.remove('checked'));
+  document.getElementById('scSummary').textContent='已确认：0 / 7';
+  document.getElementById('scConfirmBtn').disabled=true;
+}
+function confirmSafetyChecklist(){
+  document.getElementById('safetyCheckModal').classList.remove('open');
+  emitAlert('info', '学生确认通电', '学生已完成7项安全检查清单并确认通电。老师可留意该生后续是否有异常报告。', currentUser?.name||'学生');
+  alert('✅ 安全检查清单已全部确认。可以通电。\n\n请持续留意是否有异常发热。');
+}
+function openSafetyChecklist(){
+  document.querySelectorAll('#safetyChecklist .sc-item').forEach(el=>el.classList.remove('checked'));
+  document.getElementById('scSummary').textContent='已确认：0 / 7';
+  document.getElementById('scConfirmBtn').disabled=true;
+  document.getElementById('safetyCheckModal').classList.add('open');
+}
+
+// ═══════════════════ Teacher Dashboard ═══════════════════
+function showStudentDetail(name,course,progress,status,dot,logLines){
+  document.getElementById('sdName').textContent=name;
+  document.getElementById('sdCourse').textContent=course;
+  document.getElementById('sdProgress').textContent=progress;
+  document.getElementById('sdStatus').innerHTML='<span class="dot-s '+dot+'"></span>'+status;
+  document.getElementById('sdWait').textContent='停留 '+(5+Math.floor(Math.random()*15))+' 分钟';
+  document.getElementById('sdLog').innerHTML=logLines.map(l=>'<div>'+l+'</div>').join('');
+  document.getElementById('studentDetail').style.display='block';
+  document.getElementById('studentDetail').scrollIntoView({behavior:'smooth'});
+}
+
+// ═══════════════════ FAQ ═══════════════════
+const faqData=[
+  {q:'串口识别不到怎么办？',a:'<b>按顺序排查：</b><br>1. USB线是数据线还是充电线？很多Micro USB线只能充电 → 换一根确认<br>2. 换一个USB口<br>3. Windows需安装CH343/CP2102驱动 → 设备管理器看有没有黄色感叹号<br>4. 板子上电后电源指示灯亮了吗？<br>5. 如果以上都不行 → 换电脑试试',cat:'hw'},
+  {q:'烧录/刷写失败怎么解决？',a:'<b>最常见的三个原因：</b><br>1. <b>BOOT没按对</b>：按住BOOT → 按一下RESET → 松开BOOT → 再点上传<br>2. <b>串口被占用</b>：关掉串口监视器再上传<br>3. <b>开发板型号选错</b>：确认选的是 ESP32S3 Dev Module<br><br>还不行？把完整报错贴给AI。',cat:'hw'},
+  {q:'HTTP返回-1是什么意思？',a:'<b>HTTP返回-1 = ESP32连不上服务器。</b><br>1. <b>防火墙拦截</b>：先关Windows防火墙试 → 能通就是防火墙规则问题<br>2. <b>IP地址变了</b>：重新 ipconfig（Win）/ ifconfig（Mac）确认<br>3. <b>不在同一个WiFi</b>：ESP32和电脑必须连同一个WiFi<br>4. <b>端口号对吗？</b>Ollama默认11434，vLLM默认8000',cat:'sw'},
+  {q:'怎么查电脑的IP地址？',a:'<b>Windows：</b>打开终端 → 输入 ipconfig → 找"IPv4 地址"（通常是192.168.x.x）<br><b>macOS：</b>终端 → ifconfig → 找 en0 下的 inet<br><br>注意：用的是<b>局域网IP</b>（192.168.x.x），不是公网IP。',cat:'env'},
+  {q:'JSON解析失败怎么办？',a:'<b>先打印原始响应看看长什么样：</b><br>在解析JSON之前加一行：<code>Serial.println(response);</code><br><br>常见问题：<br>1. 响应带了HTTP header → 找第一个 { 开始的位置<br>2. 响应不完整 → 检查buffer大小<br>3. JSON key名不匹配 → 对比AI API文档确认字段名',cat:'sw'},
+  {q:'ESP32开发包下载太慢怎么办？',a:'<b>网络问题，换国内镜像：</b><br>Arduino IDE → 首选项 → 附加开发板管理器网址 → 换为：<br><code>https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json</code><br><br>如果还是慢 → 问AI要最新的国内镜像地址或手动下载安装。',cat:'env'},
+  {q:'安装CH343/CP2102驱动',a:'<b>ESP32-S3常用串口芯片：</b><br>· CH343（推荐）：下载 CH343SER 驱动<br>· CP2102：下载 CP210x 驱动<br><br>安装后重新插拔USB → 设备管理器 → 端口(COM和LPT) → 应出现新串口设备。<br><br>没有？换USB线/换USB口/重启电脑。',cat:'env'},
+  {q:'什么是边缘AI？和云端AI有什么区别？',a:'<b>云端AI：</b>数据上传到云端服务器 → 大模型推理 → 返回结果。需要网络、有延迟、有隐私顾虑。<br><br><b>边缘AI：</b>模型直接跑在本地设备（ESP32-S3、手机等）。离线可用、毫秒响应、数据不出设备。<br><br><b>云边协同：</b>简单任务本地做（快），复杂任务云端做（强），各取所长。',cat:'ai'},
+  {q:'ESP32-S3能跑什么AI模型？',a:'ESP32-S3有神经网络加速器，可以跑：<br>· 语音命令识别（Wake Word）<br>· 图像分类（Edge Impulse训练的模型）<br>· 手势识别<br>· 异常检测<br>· 关键词识别<br><br>通过云边协同，还能调用电脑/云端大模型做更复杂的推理。',cat:'ai'},
+  {q:'传感器没有数据/数据不变怎么办？',a:'<b>按这个顺序排查：</b><br>1. <b>供电</b>：VCC接对了？3.3V还是5V？（查datasheet）<br>2. <b>GND</b>：传感器和开发板共地了吗？<br>3. <b>GPIO</b>：DATA引脚和代码一致吗？<br>4. <b>代码</b>：库安装了？I2C地址对吗？用I2C Scanner扫一下<br>5. <b>传感器本身</b>：换一个试试？',cat:'hw'},
+  {q:'接线不确定能不能通电？',a:'<b>在我不能确认VCC/GND/GPIO都正确之前，不建议通电。</b><br><br>请先确认：<br>1. VCC电压是多少？接到了哪个引脚？<br>2. GND共地了吗？<br>3. 信号线接到了哪个GPIO？和代码一致吗？<br>4. 模块的工作电压是多少？（查datasheet）<br><br>以上都确认无误→建议先打开<b>通电前安全检查清单</b>逐项确认。',cat:'hw'},
+  {q:'代码只给思路不给完整版怎么做？',a:'这正是我们的教学理念——<b>引导不代答</b>。<br><br>AI会给你：<br>1. 要实现什么功能<br>2. 需要哪些库和函数<br>3. 代码框架（关键部分留空）<br>4. 验证方式<br><br>你需要自己填充和调试。卡住了问AI具体问题，而不是要完整代码。',cat:'ai'},
+];
+
+let faqFilter='all';
+function renderFAQ(cat){
+  faqFilter=cat||faqFilter;
+  const list=document.getElementById('faqList');
+  const search=document.getElementById('faqSearchInput')?.value?.toLowerCase()||'';
+  let items=faqData;
+  if(faqFilter!=='all')items=items.filter(f=>f.cat===faqFilter);
+  if(search)items=items.filter(f=>f.q.toLowerCase().includes(search)||f.a.toLowerCase().includes(search));
+
+  list.innerHTML=items.map((f,i)=>`<div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q"><span class="faq-cat ${f.cat==='hw'?'hw':f.cat==='sw'?'sw':f.cat==='env'?'env':'ai'}">${f.cat==='hw'?'硬件':f.cat==='sw'?'软件':f.cat==='env'?'环境':'AI'}</span>${f.q}</div>
+    <div class="faq-a">${f.a}</div></div>`).join('');
+}
+
+function filterFAQ(cat,el){
+  faqFilter=cat;
+  document.querySelectorAll('.faq-tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderFAQ(cat);
+}
+
+// ═══════════════════ Document Explainer ═══════════════════
+function handleDocUpload(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('docPasteArea').value=e.target.result;
+    explainDoc();
+  };
+  reader.readAsText(file);
+}
+function explainDoc(){
+  const text=document.getElementById('docPasteArea').value.trim();
+  if(!text){alert('请先粘贴或上传文档内容。');return;}
+  const result=document.getElementById('docResult');
+  const content=document.getElementById('docResultContent');
+
+  // Simulate AI explanation (千帆 placeholder)
+  let explanation='<b>📌 关键信息提取：</b><br>';
+  const firstLine=text.split('\n')[0].substring(0,80);
+  explanation+=`<br>文档开头：<i>"${firstLine}..."</i><br><br>`;
+  explanation+='<b>📝 大白话解释：</b><br><br>';
+
+  if(/voltage|电压|VCC|3\.3|5V|power/i.test(text)){
+    explanation+='这份文档在说<b>供电要求</b>：这块芯片/模块需要____V的电压才能正常工作。超过额定电压会烧坏，低于额定电压可能不工作。接电前先确认你的电源输出和模块要求匹配。<br><br>';
+  }
+  if(/register|寄存器|address|地址|0x/i.test(text)){
+    explanation+='这份文档包含<b>寄存器/I2C地址</b>信息。关键地址是文档里标注的那些——写代码时I2C地址填错了，传感器就不会有数据。<br><br>';
+  }
+  if(/pin|引脚|GPIO|SPI|I2C/i.test(text)){
+    explanation+='这份文档在讲<b>引脚定义</b>。每个引脚有特定功能（电源、地、数据、时钟），接错可能导致模块不工作甚至损坏。<br><br>';
+  }
+  if(/baud|波特率|bps|115200|9600/i.test(text)){
+    explanation+='这份文档提到了<b>通信参数</b>，特别是波特率。串口通信时开发板和电脑的波特率必须一致，否则看到的是乱码。<br><br>';
+  }
+  explanation+=`<b>🔗 关联实验：</b>这份资料与课程中的ESP32-S3通信/传感器实验相关。<br><br>
+    <b>⚠️ 注意：</b>以上解释为本地模拟。千帆Agent接入后，将以ERNIE模型进行完整文档理解与大白话重写。<br>
+    <span style="font-size:11px;color:var(--text2);">（千帆RAG知识库检索 + ERNIE 4.5生成 → 精准解释 + 引用来源）</span>`;
+
+  content.innerHTML=explanation;
+  result.style.display='block';
+  result.scrollIntoView({behavior:'smooth'});
+}
+
+// ═══════════════════ Experiment Notes ═══════════════════
+let savedNotes=[];
+
+function toggleNoteForm(){
+  const form=document.getElementById('noteForm');
+  form.style.display=form.style.display==='block'?'none':'block';
+  if(form.style.display==='block')form.scrollIntoView({behavior:'smooth'});
+}
+
+function saveNote(){
+  const note={
+    name:document.getElementById('nfName').value,
+    hw:document.getElementById('nfHw').value,
+    sw:document.getElementById('nfSw').value,
+    steps:document.getElementById('nfSteps').value,
+    problems:document.getElementById('nfProblems').value,
+    debug:document.getElementById('nfDebug').value,
+    result:document.getElementById('nfResult').value,
+    learned:document.getElementById('nfLearned').value,
+    next:document.getElementById('nfNext').value,
+    date:new Date().toLocaleDateString('zh-CN')
+  };
+  if(!note.name){alert('请至少填写实验名称。');return;}
+  savedNotes.unshift(note);
+  // Clear form
+  ['nfName','nfHw','nfSw','nfSteps','nfProblems','nfDebug','nfResult','nfLearned','nfNext'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('noteForm').style.display='none';
+  renderNotes();
+}
+
+function renderNotes(){
+  const grid=document.getElementById('notesGrid');
+  if(savedNotes.length===0){
+    grid.innerHTML='<div style="color:var(--text2);font-size:14px;padding:20px;text-align:center;">还没有笔记。点击"写新笔记"开始记录。</div>';
+    return;
+  }
+  grid.innerHTML=savedNotes.map((n,i)=>`<div class="note-card" onclick="viewNote(${i})">
+    <div class="n-date">${n.date}</div>
+    <div class="n-title">📓 ${n.name}</div>
+    <div class="n-summary"><span>🔧 ${n.hw||'—'}</span><span>💻 ${n.sw||'—'}</span><span>✅ ${n.result?'已记录结果':'—'}</span></div></div>`).join('');
+}
+
+function viewNote(i){
+  const n=savedNotes[i];
+  const text=`实验名称：${n.name}\n日期：${n.date}\n\n使用硬件：${n.hw}\n使用软件：${n.sw}\n\n关键步骤：\n${n.steps}\n\n遇到的问题：\n${n.problems}\n\n排查过程：\n${n.debug}\n\n最终结果：\n${n.result}\n\n我学会了：\n${n.learned}\n\n下一次注意：${n.next}`;
+  alert(text);
+}
+
+// ═══════════════════ Keyboard ═══════════════════
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('floatPanel').classList.remove('open');document.getElementById('pathDetailModal').classList.remove('open');}});
+
+// Enable input listener
+(function(){
+  const inp=document.getElementById('msgInput');
+  if(inp)inp.addEventListener('input',updateSendBtn);
+})();
+
+// Initialize FAQ on load
+window.addEventListener('DOMContentLoaded',()=>{
+  renderFAQ('all');
+  renderNotes();
+
+  // Floating particles on entry page
+  const particles=document.getElementById('particles');
+  if(particles){
+    const colors=['rgba(79,110,247,.5)','rgba(108,140,255,.4)','rgba(52,199,89,.3)','rgba(255,255,255,.2)'];
+    for(let i=0;i<30;i++){
+      const p=document.createElement('div');
+      p.className='particle';
+      const size=2+Math.random()*5;
+      p.style.cssText=`width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${Math.random()*100}%;bottom:-20px;animation-duration:${8+Math.random()*16}s;animation-delay:${Math.random()*10}s;`;
+      particles.appendChild(p);
+    }
+  }
+
+  // Pause chip rotation on hover
+  const chip=document.getElementById('chip3d');
+  if(chip){
+    chip.addEventListener('mouseenter',()=>{chip.style.animationPlayState='paused';});
+    chip.addEventListener('mouseleave',()=>{chip.style.animationPlayState='running';});
+  }
+
+  // Show login page by default
+  hideAll();document.getElementById('loginPage').style.display='flex';
+});
+</script>
+</body>
+</html>ow login page by default
+  hideAll();document.getElementById('loginPage').style.display='flex';
+});
+</script>
+</body>
+</html>
+</script>
+</body>
+</html>
